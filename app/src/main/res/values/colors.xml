@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="orange">#FF9800</color>
+    <color name="green_forest">#2D3E2E</color>
+    <color name="green_sage">#4A635D</color> <color name="orange_terracotta">#D35400</color>
+    <color name="orange_pumpkin">#E67E22</color> <color name="gold_whisk">#D4AF37</color>
+    <color name="gold_light">#F1C40F</color>
+
+    <color name="cream_background">#F9F7F2</color> <color name="white_card">#FFFFFF</color>       <color name="text_primary">#1F2923</color>     <color name="text_secondary">#6D7873</color>   <color name="text_hint">#A0A0A0</color>
+
+    <color name="error_red">#C0392B</color>        <color name="success_green">#27AE60</color>    <color name="brand_primary">@color/green_forest</color>
+    <color name="brand_secondary">@color/orange_terracotta</color>
+    <color name="brand_background">@color/cream_background</color>
+    <color name="brand_surface">@color/white_card</color>
+    <color name="brand_text">@color/text_primary</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>
