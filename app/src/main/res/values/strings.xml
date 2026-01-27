@@ -2,4 +2,17 @@
     <string name="app_name">Food_Planner</string>
     <string name="food_planner">Food Planner</string>
     <string name="slogan">Cook. Eat. Repeat.</string>
+    <string name="join_the_kitchen">Join the Kitchen</string>
+    <string name="create_an_account_to_start_your_journey">Create an account to start your journey.</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or_continue_with">or continue with</string>
+    <string name="already_a_member">Already a member?</string>
+    <string name="log_in">Log in</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_to_access_your_meal_plans">Login to access your meal plans.</string>
+    <string name="email_address">Email Address</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
 </resources>
