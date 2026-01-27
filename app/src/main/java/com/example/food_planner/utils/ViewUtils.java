@@ -9,7 +9,10 @@ public class ViewUtils {
     // General Message (Default Style)
     public static void showMessage(View view, String message) {
         if (view != null) {
-            Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+            Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_SHORT);
+            snackbar.setBackgroundTint(view.getContext().getColor(R.color.brand_secondary));
+            snackbar.setTextColor(view.getContext().getColor(R.color.white));
+            snackbar.show();
         }
     }
 
