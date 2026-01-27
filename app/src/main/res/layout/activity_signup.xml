@@ -141,20 +141,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/btnGoogle"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ic_launcher_background"
-                android:layout_marginEnd="16dp"
-                app:tint="@color/brand_primary"/>
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_gmail"
+                android:scaleType="centerInside"
+                android:layout_marginEnd="24dp"
+                tools:ignore="ContentDescription" />
 
-            <ImageView
-                android:id="@+id/btnFacebook"
+            <ImageButton
+                android:id="@+id/btnGuest"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ic_launcher_background"
-                app:tint="@color/brand_primary"/>
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_eye_mask"
+                app:tint="@color/brand_secondary"
+                android:scaleType="centerInside"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <LinearLayout
