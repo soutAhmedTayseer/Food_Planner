@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 3. Guest Logic
         btnGuest.setOnClickListener(v -> {
-            ViewUtils.showMessage(rootView, getString(R.string.entering_as_guest));
+            ViewUtils.showSuccess(rootView, getString(R.string.entering_as_guest));
             // TODO: Save 'isGuest = true' in SharedPrefs
             rootView.postDelayed(this::navigateToHome, 500);
         });

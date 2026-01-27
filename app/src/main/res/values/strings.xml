@@ -23,4 +23,17 @@
     <string name="password_must_be_at_least_6_characters">Password must be at least 6 characters</string>
     <string name="please_enter_a_valid_email_address">Please enter a valid email address</string>
     <string name="account_created_successfully">Account Created Successfully!</string>
+    <string name="isloggedin">isLoggedIn</string>
+    <string name="isguest">isGuest</string>
+    <string name="useremail">userEmail</string>
+    <string name="foodplannerprefs">FoodPlannerPrefs</string>
+    <string name="language_changed_to_arabic">Language changed to Arabic</string>
+    <string name="language_changed_to_english">Language changed to English</string>
+    <string name="data_sync_started">Data Sync Started...</string>
+    <string name="change_password_clicked">Change Password Clicked</string>
+    <string name="edit_profile_clicked">Edit Profile Clicked</string>
+    <string name="ar">ar</string>
+    <string name="en">en</string>
+    <string name="light_mode_enabled">Light Mode Enabled</string>
+    <string name="dark_mode_enabled">Dark Mode Enabled</string>
 </resources>
