@@ -4,7 +4,18 @@ import com.google.gson.annotations.SerializedName;
 
 public class MealItem {
 
-    // --- API Fields ---
+    // --- NEW FIELDS FOR MEALS (Meal of the Day / Search Results) ---
+    @SerializedName("idMeal")
+    private String id;
+
+    @SerializedName("strMeal")
+    private String mealName;
+
+    @SerializedName("strMealThumb")
+    private String mealThumb;
+
+
+    // --- EXISTING FIELDS (Categories/Areas/Ingredients) ---
     @SerializedName("strCategory")
     private String categoryName;
 
@@ -19,6 +30,9 @@ public class MealItem {
 
     // --- 1. Smart Name Getter ---
     public String getName() {
+        // Check for specific Meal Name first (Priority 1)
+        if (mealName != null && !mealName.isEmpty()) return mealName;
+
         if (categoryName != null && !categoryName.isEmpty()) return categoryName;
         if (areaName != null && !areaName.isEmpty()) return areaName;
         if (ingredientName != null && !ingredientName.isEmpty()) return ingredientName;
@@ -27,22 +41,27 @@ public class MealItem {
 
     // --- 2. Smart Image Getter ---
     public String getThumbnailUrl() {
-        // A. Category Image (Direct from API)
+        // A. Specific Meal Image (Priority 1)
+        if (mealThumb != null && !mealThumb.isEmpty()) {
+            return mealThumb;
+        }
+
+        // B. Category Image
         if (categoryThumb != null && !categoryThumb.isEmpty()) {
             return categoryThumb;
         }
 
-        // B. Category Image (Constructed manually)
+        // C. Category Image (Constructed)
         if (categoryName != null && !categoryName.isEmpty()) {
             return "https://www.themealdb.com/images/category/" + categoryName + ".png";
         }
 
-        // C. Ingredient Image
+        // D. Ingredient Image
         if (ingredientName != null && !ingredientName.isEmpty()) {
             return "https://www.themealdb.com/images/ingredients/" + ingredientName + ".png";
         }
 
-        // D. Country Flag (Using FlagCDN)
+        // E. Country Flag
         if (areaName != null && !areaName.isEmpty()) {
             String countryCode = getCountryCode(areaName);
             return "https://flagcdn.com/w320/" + countryCode + ".png";
@@ -51,6 +70,9 @@ public class MealItem {
         return null;
     }
 
+    public String getId() { return id; }
+
+    // (Keep your existing getCountryCode method exactly as it is...)
     private String getCountryCode(String areaName) {
         switch (areaName) {
             case "American": return "us";
