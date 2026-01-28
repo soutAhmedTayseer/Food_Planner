@@ -36,4 +36,15 @@
     <string name="en">en</string>
     <string name="light_mode_enabled">Light Mode Enabled</string>
     <string name="dark_mode_enabled">Dark Mode Enabled</string>
+    <string name="ingredient">Ingredient</string>
+    <string name="measure">Measure</string>
+    <string name="failed_to_load_daily_meal">Failed to load Daily Meal</string>
+    <string name="homefragment">HomeFragment</string>
+    <string name="error">"Error: "</string>
+    <string name="video_tutorial">Video Tutorial</string>
+    <string name="step_1_nstep_2">Step 1...\nStep 2...</string>
+    <string name="instructions">Instructions</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="area_category">Area • Category</string>
+    <string name="meal_name">Meal Name</string>
 </resources>
