@@ -9,7 +9,12 @@
         android:id="@+id/nav_home"
         android:name="com.example.food_planner.homescreen.view.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_mealDetails"
+            app:destination="@id/mealDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_search"
@@ -30,4 +35,13 @@
         android:id="@+id/nav_profile"
         android:name="com.example.food_planner.userscreen.view.ProfileFragment"
         android:label="Profile" />
+
+    <fragment
+        android:id="@+id/mealDetailsFragment"
+        android:name="com.example.food_planner.meal_details.view.MealDetailsFragment"
+        android:label="Meal Details">
+        <argument
+            android:name="mealDetail"
+            app:argType="com.example.food_planner.model.MealDetail" />
+    </fragment>
 </navigation>
