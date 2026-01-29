@@ -18,11 +18,21 @@ import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
-    // 1. Initialize with empty list to prevent NullPointerException immediately
     private List<MealItem> items = new ArrayList<>();
 
+    // --- 1. Define the Listener Interface ---
+    public interface OnItemClickListener {
+        void onItemClick(String itemName);
+    }
+
+    private OnItemClickListener listener;
+
+    // --- 2. Create the Setter Method (THIS FIXES YOUR ERROR) ---
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public void setList(List<MealItem> newItems) {
-        // 2. Safety check: If API returns null, just clear the list instead of crashing
         if (newItems == null) {
             this.items = new ArrayList<>();
         } else {
@@ -44,23 +54,23 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         holder.name.setText(item.getName());
 
         String url = item.getThumbnailUrl();
-
-        // 3. Only load with Glide if the URL exists
         if (url != null) {
-            Glide.with(holder.itemView.getContext())
-                    .load(url)
-                    .placeholder(R.drawable.ic_launcher_foreground) // Show placeholder while loading
-                    .error(R.drawable.ic_launcher_foreground)       // Show placeholder if error
-                    .into(holder.image);
+            Glide.with(holder.itemView.getContext()).load(url).placeholder(R.drawable.ic_launcher_foreground).into(holder.image);
         } else {
-            // For Countries (Areas) which return null for image, set a static icon
             holder.image.setImageResource(R.drawable.ic_launcher_foreground);
         }
+
+        // --- 3. Trigger the Listener on Click ---
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(item.getName());
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return items.size(); // Safe now because items is initialized
+        return items.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
