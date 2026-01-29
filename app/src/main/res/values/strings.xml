@@ -47,4 +47,9 @@
     <string name="ingredients">Ingredients</string>
     <string name="area_category">Area • Category</string>
     <string name="meal_name">Meal Name</string>
+    <string name="loading_meal">Loading Meal...</string>
+    <string name="meal_of_the_day">Meal of the Day</string>
+    <string name="what_would_you_like_to_cook_today">What would you like to cook today?</string>
+    <string name="hi_foodie">Hi, Foodie!</string>
+    <string name="meals">Meals</string>
 </resources>
