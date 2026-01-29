@@ -19,29 +19,58 @@
     <fragment
         android:id="@+id/nav_search"
         android:name="com.example.food_planner.searchscreen.view.SearchFragment"
-        android:label="Search" />
+        android:label="Search"
+        tools:layout="@layout/fragment_search">
+
+        <action
+            android:id="@+id/action_search_to_list"
+            app:destination="@id/mealsListFragment" />
+    </fragment>
 
     <fragment
-        android:id="@+id/nav_favorites"
-        android:name="com.example.food_planner.favoritescreen.view.FavoritesFragment"
-        android:label="Favorites" />
+        android:id="@+id/mealsListFragment"
+        android:name="com.example.food_planner.searchscreen.view.MealsListFragment"
+        android:label="Meals List">
 
-    <fragment
-        android:id="@+id/nav_plan"
-        android:name="com.example.food_planner.planscreen.view.WeeklyPlanFragment"
-        android:label="Plan" />
+        <argument
+            android:name="filterType"
+            app:argType="string" />
+        <argument
+            android:name="filterName"
+            app:argType="string" />
 
-    <fragment
-        android:id="@+id/nav_profile"
-        android:name="com.example.food_planner.userscreen.view.ProfileFragment"
-        android:label="Profile" />
+        <action
+            android:id="@+id/action_list_to_details"
+            app:destination="@id/mealDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/mealDetailsFragment"
         android:name="com.example.food_planner.meal_details.view.MealDetailsFragment"
-        android:label="Meal Details">
+        android:label="Meal Details"
+        tools:layout="@layout/fragment_meal_details">
+        >
         <argument
             android:name="mealDetail"
             app:argType="com.example.food_planner.model.MealDetail" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_favorites"
+        android:name="com.example.food_planner.favoritescreen.view.FavoritesFragment"
+        android:label="Favorites"
+        tools:layout="@layout/fragment_favorites" />
+
+    <fragment
+        android:id="@+id/nav_plan"
+        android:name="com.example.food_planner.planscreen.view.WeeklyPlanFragment"
+        android:label="Plan"
+        tools:layout="@layout/fragment_plan" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.food_planner.userscreen.view.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>
+
