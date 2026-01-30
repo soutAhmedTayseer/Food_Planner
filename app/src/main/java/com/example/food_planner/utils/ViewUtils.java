@@ -20,7 +20,7 @@ public class ViewUtils {
     public static void showSuccess(View view, String message) {
         if (view != null) {
             Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_SHORT);
-            snackbar.setBackgroundTint(view.getContext().getColor(R.color.success_green));
+            snackbar.setBackgroundTint(view.getContext().getColor(R.color.brand_primary));
             snackbar.setTextColor(view.getContext().getColor(R.color.white));
             snackbar.show();
         }
