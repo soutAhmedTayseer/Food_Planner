@@ -17,6 +17,16 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
     private List<MealDetail> favList = new ArrayList<>();
 
+    public interface OnFavItemClickListener {
+        void onFavClick(MealDetail meal);
+    }
+
+    private OnFavItemClickListener listener;
+
+    public void setOnFavItemClickListener(OnFavItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public void setList(List<MealDetail> meals) {
         this.favList = meals;
         notifyDataSetChanged();
@@ -25,7 +35,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // We reuse the 'item_search_category' layout since it has an Image and Text
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_search_category, parent, false);
         return new ViewHolder(view);
     }
@@ -39,6 +48,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
                 .load(meal.getThumbUrl())
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.ivThumb);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onFavClick(meal);
+            }
+        });
     }
 
     @Override
@@ -49,7 +64,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         ImageView ivThumb;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Ensure these IDs match your item_search_category.xml
             tvName = itemView.findViewById(R.id.tvCategoryName);
             ivThumb = itemView.findViewById(R.id.ivCategoryThumb);
         }
