@@ -9,7 +9,7 @@
         android:id="@+id/tvFavTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My Favorite Meals"
+        android:text="@string/my_favorite_meals"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_margin="16dp"
