@@ -1,5 +1,6 @@
 package com.example.food_planner.meal_details.view;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +29,11 @@ public class MealDetailsFragment extends Fragment {
     private ImageView ivThumb;
     private RecyclerView rvIngredients;
     private WebView webView;
+    private FloatingActionButton fabFavorite;
+
     private MealDetail mealDetail;
-    private FloatingActionButton fabFavorite; // Add this
-    private SharedPrefManager sharedPrefManager; // Add this
+    private SharedPrefManager sharedPrefManager;
+    private boolean isFavorite = false;
 
     @Nullable
     @Override
@@ -43,7 +46,6 @@ public class MealDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-
         sharedPrefManager = new SharedPrefManager(requireContext());
 
         if (getArguments() != null) {
@@ -51,6 +53,8 @@ public class MealDetailsFragment extends Fragment {
             mealDetail = args.getMealDetail();
 
             if (mealDetail != null) {
+                isFavorite = sharedPrefManager.isFavorite(mealDetail.getId());
+                updateFavoriteIcon();
                 bindData();
             }
         }
@@ -67,37 +71,60 @@ public class MealDetailsFragment extends Fragment {
     }
 
     private void bindData() {
-        // Text Data
         tvName.setText(mealDetail.getName());
         tvArea.setText(mealDetail.getArea() + " | " + mealDetail.getCategory());
         tvInstructions.setText(mealDetail.getInstructions());
 
-        // Image Loading
-        Glide.with(this)
-                .load(mealDetail.getThumbUrl())
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(ivThumb);
+        Glide.with(this).load(mealDetail.getThumbUrl()).placeholder(R.drawable.ic_launcher_background).into(ivThumb);
 
-        // Ingredients List
         IngredientsAdapter adapter = new IngredientsAdapter(mealDetail.getIngredients());
         rvIngredients.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvIngredients.setAdapter(adapter);
 
-        // YouTube Video
         loadVideo(mealDetail.getYoutubeUrl());
 
         fabFavorite.setOnClickListener(v -> {
-            if (mealDetail != null) {
-                sharedPrefManager.addMealToFavorites(mealDetail);
-                ViewUtils.showSuccess(getView(), "Added to Favorites!");
+            if (isFavorite) {
+                showRemoveConfirmationDialog();
+            } else {
+                addToFavorites();
             }
         });
     }
 
+    private void addToFavorites() {
+        sharedPrefManager.addMealToFavorites(mealDetail);
+        isFavorite = true;
+        updateFavoriteIcon();
+        ViewUtils.showSuccess(getView(), getString(R.string.added_to_favorites));
+    }
+
+    private void showRemoveConfirmationDialog() {
+        new AlertDialog.Builder(requireContext()).setTitle(R.string.remove_from_favorites).setMessage(R.string.are_you_sure_you_want_to_remove_this_meal_from_your_favorites).setPositiveButton(R.string.remove, (dialog, which) -> {
+            // User clicked Yes
+            sharedPrefManager.removeMealFromFavorites(mealDetail.getId());
+            isFavorite = false;
+            updateFavoriteIcon();
+            ViewUtils.showError(getView(), getString(R.string.removed_from_favorites));
+        }).setNegativeButton("Cancel", (dialog, which) -> {
+            // User clicked Cancel
+            dialog.dismiss();
+        }).create().show();
+    }
+
+    private void updateFavoriteIcon() {
+        if (isFavorite) {
+            fabFavorite.setImageResource(R.drawable.ic_favorite);
+
+        } else {
+            fabFavorite.setImageResource(R.drawable.ic_favorite_border);
+
+        }
+    }
 
     private void loadVideo(String url) {
         if (url != null && !url.isEmpty() && url.contains("v=")) {
-            String videoId = url.split("v=")[1]; // Get ID after "v="
+            String videoId = url.split("v=")[1];
             String embedUrl = "https://www.youtube.com/embed/" + videoId;
 
             webView.getSettings().setJavaScriptEnabled(true);
