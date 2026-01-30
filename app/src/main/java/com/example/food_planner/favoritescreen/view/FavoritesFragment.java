@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation; // Import Navigation
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,14 +39,17 @@ public class FavoritesFragment extends Fragment {
         adapter = new FavoritesAdapter();
         rvFavorites.setAdapter(adapter);
 
-        // Initialize Manager
         sharedPrefManager = new SharedPrefManager(requireContext());
 
-        // Load Data
+        adapter.setOnFavItemClickListener(meal -> {
+            FavoritesFragmentDirections.ActionFavoritesToMealDetails action =
+                    FavoritesFragmentDirections.actionFavoritesToMealDetails(meal);
+            Navigation.findNavController(view).navigate(action);
+        });
+
         loadFavorites();
     }
 
-    // Refresh data every time the fragment becomes visible (e.g. going back from another screen)
     @Override
     public void onResume() {
         super.onResume();
