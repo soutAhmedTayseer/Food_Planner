@@ -52,4 +52,15 @@
     <string name="what_would_you_like_to_cook_today">What would you like to cook today?</string>
     <string name="hi_foodie">Hi, Foodie!</string>
     <string name="meals">Meals</string>
+    <string name="my_favorite_meals">My Favorite Meals</string>
+    <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
+    <string name="home">Home</string>
+    <string name="plan">Plan</string>
+    <string name="remove">Remove</string>
+    <string name="are_you_sure_you_want_to_remove_this_meal_from_your_favorites">Are you sure you want to remove this meal from your favorites?</string>
+    <string name="removed_from_favorites">Removed from Favorites</string>
+    <string name="remove_from_favorites">Remove from Favorites</string>
+    <string name="added_to_favorites">Added to Favorites</string>
 </resources>
