@@ -20,34 +20,43 @@ public class SharedPrefManager {
         gson = new Gson();
     }
 
-    // Save a meal to the list
-    public void addMealToFavorites(MealDetail meal) {
-        List<MealDetail> currentList = getFavorites();
-
-        // Prevent duplicates
-        for (MealDetail m : currentList) {
-            if (m.getId().equals(meal.getId())) {
-                return; // Already exists
-            }
-        }
-
-        currentList.add(meal);
-        saveList(currentList);
-    }
-
-    // Get all favorite meals
     public List<MealDetail> getFavorites() {
         String json = sharedPreferences.getString(KEY_FAVS, null);
         if (json == null) {
             return new ArrayList<>();
         }
-
-        // Convert JSON string back to List<MealDetail>
         Type type = new TypeToken<List<MealDetail>>() {}.getType();
         return gson.fromJson(json, type);
     }
 
-    // Helper to save the list
+    public void addMealToFavorites(MealDetail meal) {
+        List<MealDetail> currentList = getFavorites();
+        for (MealDetail m : currentList) {
+            if (m.getId().equals(meal.getId())) return;
+        }
+        currentList.add(meal);
+        saveList(currentList);
+    }
+
+    public void removeMealFromFavorites(String mealId) {
+        List<MealDetail> currentList = getFavorites();
+        for (int i = 0; i < currentList.size(); i++) {
+            if (currentList.get(i).getId().equals(mealId)) {
+                currentList.remove(i);
+                saveList(currentList);
+                return;
+            }
+        }
+    }
+
+    public boolean isFavorite(String mealId) {
+        List<MealDetail> currentList = getFavorites();
+        for (MealDetail m : currentList) {
+            if (m.getId().equals(mealId)) return true;
+        }
+        return false;
+    }
+
     private void saveList(List<MealDetail> list) {
         String json = gson.toJson(list);
         sharedPreferences.edit().putString(KEY_FAVS, json).apply();
