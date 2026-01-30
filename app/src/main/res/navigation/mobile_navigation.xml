@@ -49,7 +49,6 @@
         android:name="com.example.food_planner.meal_details.view.MealDetailsFragment"
         android:label="Meal Details"
         tools:layout="@layout/fragment_meal_details">
-        >
         <argument
             android:name="mealDetail"
             app:argType="com.example.food_planner.model.MealDetail" />
@@ -58,8 +57,14 @@
     <fragment
         android:id="@+id/nav_favorites"
         android:name="com.example.food_planner.favoritescreen.view.FavoritesFragment"
-        android:label="Favorites"
-        tools:layout="@layout/fragment_favorites" />
+        android:label="Favorites">
+
+        <action
+            android:id="@+id/action_favorites_to_mealDetails"
+            app:destination="@id/mealDetailsFragment" />
+    </fragment>
+
+
 
     <fragment
         android:id="@+id/nav_plan"
