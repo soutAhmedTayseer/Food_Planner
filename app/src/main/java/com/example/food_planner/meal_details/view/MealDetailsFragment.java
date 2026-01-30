@@ -8,14 +8,19 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
+import com.example.food_planner.utils.SharedPrefManager;
+import com.example.food_planner.utils.ViewUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MealDetailsFragment extends Fragment {
 
@@ -24,11 +29,12 @@ public class MealDetailsFragment extends Fragment {
     private RecyclerView rvIngredients;
     private WebView webView;
     private MealDetail mealDetail;
+    private FloatingActionButton fabFavorite; // Add this
+    private SharedPrefManager sharedPrefManager; // Add this
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_meal_details, container, false);
     }
 
@@ -36,12 +42,11 @@ public class MealDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Initialize Views
         initViews(view);
 
-        // 2. Retrieve Data from Navigation Arguments
+        sharedPrefManager = new SharedPrefManager(requireContext());
+
         if (getArguments() != null) {
-            // This class is generated automatically when you Rebuild Project
             MealDetailsFragmentArgs args = MealDetailsFragmentArgs.fromBundle(getArguments());
             mealDetail = args.getMealDetail();
 
@@ -58,6 +63,7 @@ public class MealDetailsFragment extends Fragment {
         ivThumb = view.findViewById(R.id.ivDetailThumb);
         rvIngredients = view.findViewById(R.id.rvIngredients);
         webView = view.findViewById(R.id.webViewVideo);
+        fabFavorite = view.findViewById(R.id.fabFavorite);
     }
 
     private void bindData() {
@@ -79,7 +85,15 @@ public class MealDetailsFragment extends Fragment {
 
         // YouTube Video
         loadVideo(mealDetail.getYoutubeUrl());
+
+        fabFavorite.setOnClickListener(v -> {
+            if (mealDetail != null) {
+                sharedPrefManager.addMealToFavorites(mealDetail);
+                ViewUtils.showSuccess(getView(), "Added to Favorites!");
+            }
+        });
     }
+
 
     private void loadVideo(String url) {
         if (url != null && !url.isEmpty() && url.contains("v=")) {
