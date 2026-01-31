@@ -13,7 +13,11 @@
 
         <action
             android:id="@+id/action_home_to_mealDetails"
-            app:destination="@id/mealDetailsFragment" />
+            app:destination="@id/mealDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -24,7 +28,11 @@
 
         <action
             android:id="@+id/action_search_to_list"
-            app:destination="@id/mealsListFragment" />
+            app:destination="@id/mealsListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -41,7 +49,11 @@
 
         <action
             android:id="@+id/action_list_to_details"
-            app:destination="@id/mealDetailsFragment" />
+            app:destination="@id/mealDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -62,7 +74,11 @@
 
         <action
             android:id="@+id/action_favorites_to_mealDetails"
-            app:destination="@id/mealDetailsFragment" />
+            app:destination="@id/mealDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
 

@@ -10,11 +10,14 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardSearch"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         app:cardCornerRadius="25dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toTopOf="parent">
+        app:cardElevation="6dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
@@ -22,65 +25,27 @@
             android:layout_height="match_parent"
             app:queryHint="Search for meals..."
             app:iconifiedByDefault="false"
-            android:background="@color/white_card"/>
+            app:queryBackground="@android:color/transparent"
+            android:background="@android:color/white"/>
     </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        app:layout_constraintTop_toBottomOf="@id/cardSearch"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipCategory"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Categories"
-            android:checked="true"
-            android:textColor="@color/brand_primary"
-            app:chipBackgroundColor="@color/white_card"/>
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipCountry"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Countries"
-            android:textColor="@color/brand_primary"
-            app:chipBackgroundColor="@color/white_card"/>
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipIngredient"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ingredients"
-            android:textColor="@color/brand_primary"
-            app:chipBackgroundColor="@color/white_card"/>
-    </com.google.android.material.chip.ChipGroup>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSearch"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupSearch"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/rvSearch"
         app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieLoading"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/splash_anim" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

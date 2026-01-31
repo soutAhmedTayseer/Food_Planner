@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -22,7 +23,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
     // --- 1. Define the Listener Interface ---
     public interface OnItemClickListener {
-        void onItemClick(String itemName);
+        void onItemClick(String itemName, ImageView sharedImageView); // Add ImageView param
     }
 
     private OnItemClickListener listener;
@@ -62,8 +63,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
         // --- 3. Trigger the Listener on Click ---
         holder.itemView.setOnClickListener(v -> {
+            // Unique transition name for every item is REQUIRED
+            ViewCompat.setTransitionName(holder.image, item.getName());
+
             if (listener != null) {
-                listener.onItemClick(item.getName());
+                listener.onItemClick(item.getName(), holder.image);
             }
         });
     }

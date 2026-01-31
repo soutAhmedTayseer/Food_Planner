@@ -63,4 +63,6 @@
     <string name="removed_from_favorites">Removed from Favorites</string>
     <string name="remove_from_favorites">Remove from Favorites</string>
     <string name="added_to_favorites">Added to Favorites</string>
+    <string name="countries">Countries</string>
+    <string name="categories">Categories</string>
 </resources>
