@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.network.FoodApi;
@@ -27,14 +28,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MealsListFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private ProgressBar progressBar;
+    private LottieAnimationView lottieLoading;
+    private ImageButton btnBack; // Using ImageButton for the custom back arrow
     private MealsListAdapter adapter;
     private FoodApi foodApi;
     private CompositeDisposable disposable = new CompositeDisposable();
 
     // To hold arguments
-    private String filterType; // "c", "a", or "i"
-    private String filterName; // "Beef", "Canadian", etc.
+    private String filterType;
+    private String filterName;
 
     @Nullable
     @Override
@@ -46,7 +48,7 @@ public class MealsListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Get Arguments (SafeArgs)
+        // 1. Get Arguments
         if (getArguments() != null) {
             MealsListFragmentArgs args = MealsListFragmentArgs.fromBundle(getArguments());
             filterType = args.getFilterType();
@@ -55,23 +57,24 @@ public class MealsListFragment extends Fragment {
 
         // 2. Init Views
         recyclerView = view.findViewById(R.id.rvMealsList);
-        progressBar = view.findViewById(R.id.progressBar);
+        lottieLoading = view.findViewById(R.id.lottieLoading);
         TextView tvTitle = view.findViewById(R.id.tvListTitle);
 
+        // Set Title if available
         if (filterName != null) tvTitle.setText(filterName + " Meals");
-
-        // 3. Setup Recycler
+        
+        // 4. Setup Recycler
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new MealsListAdapter();
         recyclerView.setAdapter(adapter);
 
-        // 4. Init API
+        // 5. Init API
         foodApi = NetworkClient.getRetrofitInstance().create(FoodApi.class);
 
-        // 5. Fetch Data
+        // 6. Fetch Data
         fetchMeals();
 
-        // 6. Handle Click -> Go to Details
+        // 7. Handle Item Click (Go to Details)
         adapter.setOnItemClickListener(mealId -> {
             fetchFullDetailsAndNavigate(mealId, view);
         });
@@ -125,8 +128,18 @@ public class MealsListFragment extends Fragment {
     }
 
     private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        // Safety check to ensure views exist
+        if (lottieLoading != null && recyclerView != null) {
+            if (isLoading) {
+                lottieLoading.setVisibility(View.VISIBLE);
+                lottieLoading.playAnimation();
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                lottieLoading.cancelAnimation();
+                lottieLoading.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override

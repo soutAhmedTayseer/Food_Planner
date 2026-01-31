@@ -6,8 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,16 +13,14 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealItem;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 import com.example.food_planner.utils.ViewUtils;
 import com.google.android.material.chip.ChipGroup;
-
 import java.util.List;
-
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -32,6 +28,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class SearchFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private LottieAnimationView lottieLoading;
     private ProgressBar progressBar;
     private ChipGroup chipGroup;
     private SearchAdapter adapter;
@@ -49,7 +46,7 @@ public class SearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.rvSearch);
-        progressBar = view.findViewById(R.id.progressBar);
+        lottieLoading = view.findViewById(R.id.lottieLoading);
         chipGroup = view.findViewById(R.id.chipGroupSearch);
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -92,7 +89,9 @@ public class SearchFragment extends Fragment {
 
             Navigation.findNavController(view).navigate(action, extras);
         });
+
     }
+
 
     // --- Network Calls (Unchanged) ---
 
@@ -134,8 +133,15 @@ public class SearchFragment extends Fragment {
     }
 
     private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (isLoading) {
+            lottieLoading.setVisibility(View.VISIBLE);
+            lottieLoading.playAnimation();
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            lottieLoading.cancelAnimation();
+            lottieLoading.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showError(String msg) {
@@ -148,4 +154,5 @@ public class SearchFragment extends Fragment {
         super.onDestroy();
         disposable.clear();
     }
+
 }
