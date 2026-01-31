@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -79,10 +80,17 @@ public class SearchFragment extends Fragment {
         });
 
         // --- 3. Handle Item Click (Now the method exists!) ---
-        adapter.setOnItemClickListener(itemName -> {
-            // Navigate to List, passing the type (e.g., "c") and name (e.g., "Beef")
-            SearchFragmentDirections.ActionSearchToList action = SearchFragmentDirections.actionSearchToList(currentType[0], itemName);
-            Navigation.findNavController(view).navigate(action);
+        adapter.setOnItemClickListener((itemName, sharedImageView) -> {
+            // 1. Create the extras for the transition
+            FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                    .addSharedElement(sharedImageView, "shared_image") // Must match XML transitionName
+                    .build();
+
+            // 2. Navigate with extras
+            SearchFragmentDirections.ActionSearchToList action =
+                    SearchFragmentDirections.actionSearchToList(currentType[0], itemName);
+
+            Navigation.findNavController(view).navigate(action, extras);
         });
     }
 
