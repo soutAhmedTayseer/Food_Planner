@@ -62,7 +62,7 @@ public class MealsListFragment extends Fragment {
 
         // Set Title if available
         if (filterName != null) tvTitle.setText(filterName + " Meals");
-        
+
         // 4. Setup Recycler
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new MealsListAdapter();
