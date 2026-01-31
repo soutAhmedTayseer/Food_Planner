@@ -21,6 +21,8 @@ import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 
+import java.util.concurrent.TimeUnit; // Import needed for delay
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -29,7 +31,7 @@ public class MealsListFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private LottieAnimationView lottieLoading;
-    private ImageButton btnBack; // Using ImageButton for the custom back arrow
+    private ImageButton btnBack;
     private MealsListAdapter adapter;
     private FoodApi foodApi;
     private CompositeDisposable disposable = new CompositeDisposable();
@@ -94,6 +96,7 @@ public class MealsListFragment extends Fragment {
         }
 
         disposable.add(apiCall
+                .delay(1, TimeUnit.SECONDS) // Force 1-second delay for animation
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(response -> {
@@ -109,6 +112,7 @@ public class MealsListFragment extends Fragment {
         showLoading(true);
         // The list only has thumbnails/names. We need full details (instructions/video)
         disposable.add(foodApi.getMealById(id)
+                .delay(1, TimeUnit.SECONDS) // Force 1-second delay for animation
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(response -> {
