@@ -17,15 +17,25 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|enterAlways">
 
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:titleTextColor="?attr/colorOnSurface"
+                app:layout_collapseMode="pin" />
+
             <TextView
                 android:id="@+id/tvListTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:paddingStart="72dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/meals"
                 android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
                 android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_gravity="bottom"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -37,12 +47,14 @@
         android:padding="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieLoading"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:lottie_rawRes="@raw/splash_anim"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
         android:layout_gravity="center"
-        android:indeterminate="true"
         android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
