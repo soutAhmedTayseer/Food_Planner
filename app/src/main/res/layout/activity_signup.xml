@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/brand_background"
+    android:background="?android:attr/windowBackground"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,10 +29,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/join_the_kitchen"
-            android:fontFamily="serif"
-            android:textSize="34sp"
-            android:textStyle="bold"
-            android:textColor="@color/brand_primary"
+            style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
+            android:textColor="?attr/colorPrimary"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/animSignUp"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,8 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/create_an_account_to_start_your_journey"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
+            style="@style/TextAppearance.FoodPlanner.BodyMedium"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/tvTitleSign"
             app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +54,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/email"
             android:layout_marginTop="40dp"
-            app:startIconTint="@color/gold_whisk"
+            app:startIconDrawable="@drawable/ic_email"
+            app:startIconTint="?attr/colorSecondary"
             app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -65,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/brand_text"/>
+                android:textColor="?attr/colorOnSurface"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -75,8 +73,10 @@
             android:layout_height="wrap_content"
             android:hint="@string/password"
             android:layout_marginTop="16dp"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="?attr/colorSecondary"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/gold_whisk"
+            app:passwordToggleTint="?attr/colorSecondary"
             app:layout_constraintTop_toBottomOf="@id/tilEmailSign">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:textColor="@color/brand_text"/>
+                android:textColor="?attr/colorOnSurface"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -94,8 +94,10 @@
             android:layout_height="wrap_content"
             android:hint="@string/confirm_password"
             android:layout_marginTop="16dp"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="?attr/colorSecondary"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/gold_whisk"
+            app:passwordToggleTint="?attr/colorSecondary"
             app:layout_constraintTop_toBottomOf="@id/tilPasswordSign">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -103,19 +105,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:textColor="@color/brand_text"/>
+                android:textColor="?attr/colorOnSurface"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSignUp"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text="@string/sign_up"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:letterSpacing="0.05"
-            android:backgroundTint="@color/brand_secondary"
-            android:textColor="@color/white"
+            app:backgroundTint="?attr/colorSecondary"
+            android:textColor="?attr/colorOnSecondary"
             app:cornerRadius="30dp"
             android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/tilConfirmPass"/>
@@ -125,7 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/or_continue_with"
-            android:textColor="@color/text_hint"
+            style="@style/TextAppearance.FoodPlanner.BodyMedium"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/btnSignUp"
             app:layout_constraintStart_toStartOf="parent"
@@ -157,7 +159,7 @@
                 android:layout_height="50dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_eye_mask"
-                app:tint="@color/brand_secondary"
+                app:tint="?attr/colorSecondary"
                 android:scaleType="centerInside"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
@@ -177,15 +179,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/already_a_member"
-                android:textColor="@color/brand_text" />
+                style="@style/TextAppearance.FoodPlanner.BodyMedium"
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/tvGoToLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/log_in"
+                style="@style/TextAppearance.FoodPlanner.LabelLarge"
+                android:textColor="?attr/colorSecondary"
                 android:textStyle="bold"
-                android:textColor="@color/brand_secondary"
                 android:layout_marginStart="4dp"/>
         </LinearLayout>
 
