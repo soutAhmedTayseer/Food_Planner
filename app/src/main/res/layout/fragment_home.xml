@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?android:attr/windowBackground"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,50 +15,52 @@
 
         <TextView
             android:id="@+id/tvGreeting"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="24dp"
             android:text="@string/hi_foodie"
-            android:textColor="@color/black"
-            android:textSize="28sp"
-            android:textStyle="bold"
+            style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvSubtitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/what_would_you_like_to_cook_today"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
+            style="@style/TextAppearance.FoodPlanner.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintStart_toStartOf="@id/tvGreeting"
+            app:layout_constraintEnd_toEndOf="@id/tvGreeting"
             app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
 
         <TextView
             android:id="@+id/tvDailyHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="32dp"
             android:text="@string/meal_of_the_day"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
+            style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintStart_toStartOf="@id/tvGreeting"
             app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardMealOfDay"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintStart_toStartOf="@id/tvGreeting"
+            app:layout_constraintEnd_toEndOf="@id/tvGreeting"
             app:layout_constraintTop_toBottomOf="@id/tvDailyHeader">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -70,12 +73,13 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_launcher_background"
-                    tools:ignore="ContentDescription" />
+                    android:contentDescription="@string/meal_of_the_day" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="80dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/gradient_black_transparent"
+                    app:layout_constraintHeight_percent="0.5"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <TextView
@@ -84,9 +88,10 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/loading_meal"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
+                    android:textColor="@android:color/white"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -94,6 +99,18 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieLoading"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:lottie_rawRes="@raw/splash_anim"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/cardMealOfDay"
+            app:layout_constraintBottom_toBottomOf="@id/cardMealOfDay"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
