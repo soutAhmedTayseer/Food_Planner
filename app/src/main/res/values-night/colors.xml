@@ -1,37 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="md_theme_primary">#95D5A4</color> <color name="md_theme_onPrimary">#003918</color>
-    <color name="md_theme_primaryContainer">#14522A</color>
-    <color name="md_theme_onPrimaryContainer">#B0F2C2</color>
 
-    <color name="md_theme_secondary">#FFB59C</color> <color name="md_theme_onSecondary">#552005</color>
-    <color name="md_theme_secondaryContainer">#773212</color>
-    <color name="md_theme_onSecondaryContainer">#FFDBCC</color>
+    <color name="md_theme_primary">#6DDBAC</color>
 
-    <color name="md_theme_background">#121212</color> <color name="md_theme_onBackground">#E2E3DD</color>
+    <color name="md_theme_onPrimary">#003822</color>
 
-    <color name="md_theme_surface">#1E1E1E</color> <color name="md_theme_onSurface">#E2E3DD</color>
-    <color name="md_theme_surfaceVariant">#44483F</color>
-    <color name="md_theme_onSurfaceVariant">#C4C8BB</color>
+    <color name="md_theme_primaryContainer">#005132</color>
+
+    <color name="md_theme_onPrimaryContainer">#8AF8C7</color>
+
+
+
+    <color name="md_theme_secondary">#B3CCBF</color>
+
+    <color name="md_theme_onSecondary">#1E352B</color>
+
+    <color name="md_theme_secondaryContainer">#344C41</color>
+
+    <color name="md_theme_onSecondaryContainer">#CEE8DB</color>
+
+
+
+    <color name="md_theme_background">#191C1A</color>
+
+    <color name="md_theme_onBackground">#E1E3DF</color>
+
+    <color name="md_theme_surface">#191C1A</color>
+
+    <color name="md_theme_onSurface">#E1E3DF</color>
+
+
+
+    <color name="md_theme_surfaceVariant">#404943</color>
+
+    <color name="md_theme_onSurfaceVariant">#BFC9C2</color>
+
+    <color name="md_theme_outline">#8A938C</color>
+
+
 
     <color name="md_theme_error">#FFB4AB</color>
+
     <color name="md_theme_onError">#690005</color>
 
+
+
+    <color name="error_red">#BA1A1A</color>
+
+    <color name="success_green">#4ADE80</color>
+
+
+
+    <color name="white">#E1E3DF</color>
+
+    <color name="black">#000000</color>
+
+    <color name="gold_whisk">#FFE082</color>
+
+    <color name="orange_pumpkin">#FFCC80</color>
+
+
+
+    <color name="green_forest">@color/md_theme_primary</color>
+
+    <color name="green_sage">@color/md_theme_secondary</color>
+
+    <color name="orange_terracotta">#FFB59C</color>
+
+    <color name="text_primary">#E1E3DF</color>
+
+    <color name="text_secondary">#BFC9C2</color>
+
+    <color name="text_hint">#8A938C</color>
+
+
+
     <color name="brand_primary">@color/md_theme_primary</color>
+
     <color name="brand_secondary">@color/md_theme_secondary</color>
+
     <color name="brand_background">@color/md_theme_background</color>
-    <color name="brand_surface">@color/md_theme_surface</color>
+
+    <color name="brand_surface">@color/md_theme_surfaceVariant</color>
+
     <color name="brand_text">@color/md_theme_onSurface</color>
 
-    <color name="white_card">#1E1E1E</color>
-    <color name="orange_pumpkin">#FFCC80</color>
-    <color name="gold_whisk">#FFE082</color>
-    <color name="white">#E2E3DD</color> <color name="black">#000000</color>
-    <color name="error_red">#FFB4AB</color>
-    <color name="green_sage">#8B9389</color>
-    <color name="orange_terracotta">#FFB59C</color>
-    <color name="green_forest">#95D5A4</color>
-    <color name="text_primary">#E2E3DD</color>
-    <color name="text_secondary">#C4C8BB</color>
-    <color name="text_hint">#8B9389</color>
 </resources>
