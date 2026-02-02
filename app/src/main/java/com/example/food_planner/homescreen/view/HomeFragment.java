@@ -8,30 +8,40 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation; // Import Navigation
+import androidx.navigation.Navigation;
+
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
-import com.example.food_planner.model.MealDetail; // Use MealDetail (Full), not MealItem
+import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
+import com.example.food_planner.utils.SharedPrefManager; // Import your Manager
+import com.google.android.material.card.MaterialCardView;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
 
+    private static final String TAG = "HomeFragment";
+
+    // UI Components
     private ImageView ivDailyMeal;
     private TextView tvDailyMealName;
-    private View cardMealOfDay;
+    private MaterialCardView cardMealOfDay;
+    private View layoutCardFront;
+    private View layoutCardBack;
 
+    // Data / Network
     private FoodApi foodApi;
-    private CompositeDisposable disposable = new CompositeDisposable();
-
-    // Store the fetched meal so we can pass it on click
-    private MealDetail currentRandomMeal;
+    private final CompositeDisposable disposable = new CompositeDisposable();
+    private MealDetail currentMeal;
+    private SharedPrefManager sharedPrefManager; // Use the manager
 
     @Nullable
     @Override
@@ -43,55 +53,116 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Initialize Views
+        initViews(view);
+        setupApi();
+
+        // Use Manager to check for valid meal
+        checkDailyMealStatus();
+    }
+
+    private void initViews(View view) {
         ivDailyMeal = view.findViewById(R.id.ivDailyMeal);
         tvDailyMealName = view.findViewById(R.id.tvDailyMealName);
         cardMealOfDay = view.findViewById(R.id.cardMealOfDay);
+        layoutCardFront = view.findViewById(R.id.layout_card_front);
+        layoutCardBack = view.findViewById(R.id.layout_card_back);
 
-        // 2. Initialize Network
+        // Initialize Manager
+        sharedPrefManager = new SharedPrefManager(requireContext());
+    }
+
+    private void setupApi() {
         foodApi = NetworkClient.getRetrofitInstance().create(FoodApi.class);
-
-        // 3. Fetch Data
-        getMealOfTheDay();
     }
 
-    private void getMealOfTheDay() {
-        // Now returns Single<MealResponse>
-        disposable.add(foodApi.getRandomMeal()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(response -> {
-                    if (response.getMeals() != null && !response.getMeals().isEmpty()) {
-                        // Capture the full details
-                        currentRandomMeal = response.getMeals().get(0);
-                        updateUI(currentRandomMeal);
-                    }
-                }, error -> {
-                    Log.e(getString(R.string.homefragment), getString(R.string.error) + error.getMessage());
-                    Toast.makeText(getContext(), R.string.failed_to_load_daily_meal, Toast.LENGTH_SHORT).show();
-                }));
+    private void checkDailyMealStatus() {
+        // BUG FIX: Instead of manually getting strings and making a new object,
+        // we ask the manager for the full object if it's valid.
+        MealDetail savedMeal = sharedPrefManager.getValidDailyMeal();
+
+        if (savedMeal != null) {
+            // Meal exists and is valid -> Show it (Revealed State)
+            currentMeal = savedMeal;
+
+            // Populate UI
+            tvDailyMealName.setText(currentMeal.getName()); // Assuming getName() exists
+            Glide.with(this).load(currentMeal.getThumbUrl()) // Assuming getThumbUrl() exists
+                    .placeholder(R.drawable.ic_launcher_background).into(ivDailyMeal);
+
+            // Show Back immediately
+            layoutCardFront.setVisibility(View.GONE);
+            layoutCardBack.setVisibility(View.VISIBLE);
+
+            // Click listener: Navigate
+            cardMealOfDay.setOnClickListener(v -> navigateToDetails());
+        } else {
+            // Expired or Empty -> Show Mystery State
+            showMysteryState();
+        }
     }
 
-    private void updateUI(MealDetail meal) {
-        // Set Name
-        tvDailyMealName.setText(meal.getName());
+    private void showMysteryState() {
+        layoutCardFront.setVisibility(View.VISIBLE);
+        layoutCardBack.setVisibility(View.GONE);
 
-        // Set Image
-        Glide.with(this)
-                .load(meal.getThumbUrl())
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background)
-                .into(ivDailyMeal);
+        // Click listener: Fetch new meal and Flip
+        cardMealOfDay.setOnClickListener(v -> fetchAndFlip());
+    }
 
-        // Set Click Listener -> Navigate to MealDetailsFragment
-        cardMealOfDay.setOnClickListener(v -> {
-            if (currentRandomMeal != null) {
-                // Use Safe Args to pass the full object
-                HomeFragmentDirections.ActionHomeToMealDetails action =
-                        HomeFragmentDirections.actionHomeToMealDetails(currentRandomMeal);
-                Navigation.findNavController(v).navigate(action);
+    private void fetchAndFlip() {
+        cardMealOfDay.setClickable(false); // Prevent double clicks
+
+        disposable.add(foodApi.getRandomMeal().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
+            if (response.getMeals() != null && !response.getMeals().isEmpty()) {
+                currentMeal = response.getMeals().get(0);
+
+                // Save using Manager
+                sharedPrefManager.saveDailyMeal(currentMeal);
+
+                // Populate UI before flip
+                tvDailyMealName.setText(currentMeal.getName());
+                Glide.with(this).load(currentMeal.getThumbUrl()).into(ivDailyMeal);
+
+                // Flip
+                performFlipAnimation();
+            } else {
+                showError(getString(R.string.failed_to_load_daily_meal));
+                cardMealOfDay.setClickable(true);
             }
-        });
+        }, error -> {
+            Log.e(TAG, "Error: " + error.getMessage());
+            showError(getString(R.string.error) + " " + error.getMessage());
+            cardMealOfDay.setClickable(true);
+        }));
+    }
+
+    private void performFlipAnimation() {
+        final float scale = requireContext().getResources().getDisplayMetrics().density;
+        cardMealOfDay.setCameraDistance(8000 * scale);
+
+        layoutCardFront.animate().withLayer().rotationY(90).setDuration(300).withEndAction(() -> {
+            layoutCardFront.setVisibility(View.GONE);
+            layoutCardBack.setVisibility(View.VISIBLE);
+            layoutCardBack.setRotationY(-90);
+
+            layoutCardBack.animate().withLayer().rotationY(0).setDuration(300).withEndAction(() -> {
+                cardMealOfDay.setClickable(true);
+                cardMealOfDay.setOnClickListener(v -> navigateToDetails());
+            }).start();
+        }).start();
+    }
+
+    private void navigateToDetails() {
+        if (currentMeal != null) {
+            HomeFragmentDirections.ActionHomeToMealDetails action = HomeFragmentDirections.actionHomeToMealDetails(currentMeal);
+            Navigation.findNavController(requireView()).navigate(action);
+        }
+    }
+
+    private void showError(String message) {
+        if (getContext() != null) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
