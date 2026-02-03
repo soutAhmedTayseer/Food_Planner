@@ -66,4 +66,14 @@
     <string name="countries">Countries</string>
     <string name="categories">Categories</string>
     <string name="tap_to_reveal">Tap to Reveal</string>
+    <string name="name">Name</string>
+    <string name="email_example_com">email@example.com</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="general">General</string>
+    <string name="change_password">Change Password</string>
+    <string name="sync_backup_data">Sync / Backup Data</string>
+    <string name="preferences">Preferences</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="language">Language</string>
+    <string name="log_out">Log Out</string>
 </resources>
