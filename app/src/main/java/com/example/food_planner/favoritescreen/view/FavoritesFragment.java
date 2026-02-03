@@ -1,27 +1,34 @@
 package com.example.food_planner.favoritescreen.view;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation; // Import Navigation
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food_planner.R;
-import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.utils.SharedPrefManager;
+import com.example.food_planner.favoritescreen.view.FavoritesAdapter;
+import com.example.food_planner.favoritescreen.view.FavoritesFragmentDirections;
+import com.example.food_planner.repository.MealRepository;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.List;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class FavoritesFragment extends Fragment {
 
     private RecyclerView rvFavorites;
     private FavoritesAdapter adapter;
-    private SharedPrefManager sharedPrefManager;
+    private MealRepository mealRepository;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -33,31 +40,33 @@ public class FavoritesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Init Repository
+        mealRepository = new MealRepository(requireContext());
+
+        // Setup RecyclerView
         rvFavorites = view.findViewById(R.id.rvFavorites);
         rvFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
-
         adapter = new FavoritesAdapter();
         rvFavorites.setAdapter(adapter);
 
-        sharedPrefManager = new SharedPrefManager(requireContext());
-
+        // 1. Navigation on Click
         adapter.setOnFavItemClickListener(meal -> {
-            FavoritesFragmentDirections.ActionFavoritesToMealDetails action =
-                    FavoritesFragmentDirections.actionFavoritesToMealDetails(meal);
+            FavoritesFragmentDirections.ActionFavoritesToMealDetails action = FavoritesFragmentDirections.actionFavoritesToMealDetails(meal);
             Navigation.findNavController(view).navigate(action);
         });
 
-        loadFavorites();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+        // 2. Load Data from Room
         loadFavorites();
     }
 
     private void loadFavorites() {
-        List<MealDetail> list = sharedPrefManager.getFavorites();
-        adapter.setList(list);
+        disposable.add(mealRepository.getStoredMeals().observeOn(AndroidSchedulers.mainThread()).subscribe(meals -> adapter.setList(meals), error -> Toast.makeText(getContext(), "Error loading favorites", Toast.LENGTH_SHORT).show()));
+    }
+
+    // Clean up RxJava
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        disposable.clear();
     }
 }

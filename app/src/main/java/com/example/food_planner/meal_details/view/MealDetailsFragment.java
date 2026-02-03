@@ -1,6 +1,5 @@
 package com.example.food_planner.meal_details.view;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,9 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.utils.SharedPrefManager;
+import com.example.food_planner.repository.MealRepository;
 import com.example.food_planner.utils.ViewUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MealDetailsFragment extends Fragment {
 
@@ -32,8 +36,8 @@ public class MealDetailsFragment extends Fragment {
     private FloatingActionButton fabFavorite;
 
     private MealDetail mealDetail;
-    private SharedPrefManager sharedPrefManager;
-    private boolean isFavorite = false;
+    private MealRepository mealRepository; // Replaces SharedPrefManager
+    private final CompositeDisposable disposable = new CompositeDisposable(); // To manage subscriptions
 
     @Nullable
     @Override
@@ -46,16 +50,18 @@ public class MealDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-        sharedPrefManager = new SharedPrefManager(requireContext());
+
+        // 1. Initialize Repository
+        mealRepository = new MealRepository(requireContext());
 
         if (getArguments() != null) {
             MealDetailsFragmentArgs args = MealDetailsFragmentArgs.fromBundle(getArguments());
             mealDetail = args.getMealDetail();
 
             if (mealDetail != null) {
-                isFavorite = sharedPrefManager.isFavorite(mealDetail.getId());
-                updateFavoriteIcon();
                 bindData();
+                // 2. Check initial favorite state from DB
+                checkFavoriteStatus();
             }
         }
     }
@@ -75,7 +81,10 @@ public class MealDetailsFragment extends Fragment {
         tvArea.setText(mealDetail.getArea() + " | " + mealDetail.getCategory());
         tvInstructions.setText(mealDetail.getInstructions());
 
-        Glide.with(this).load(mealDetail.getThumbUrl()).placeholder(R.drawable.ic_launcher_background).into(ivThumb);
+        Glide.with(this)
+                .load(mealDetail.getThumbUrl())
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(ivThumb);
 
         IngredientsAdapter adapter = new IngredientsAdapter(mealDetail.getIngredients());
         rvIngredients.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -83,43 +92,46 @@ public class MealDetailsFragment extends Fragment {
 
         loadVideo(mealDetail.getYoutubeUrl());
 
+        // 3. Setup Click Listener (Your Snippet)
+        setupFavoriteClick();
+    }
+
+    private void checkFavoriteStatus() {
+        disposable.add(
+                mealRepository.isFavorite(mealDetail.getId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(isFav -> {
+                            if (isFav) {
+                                fabFavorite.setImageResource(R.drawable.ic_favorite);
+                            } else {
+                                fabFavorite.setImageResource(R.drawable.ic_favorite_border);
+                            }
+                        }, error -> Toast.makeText(requireContext(), "Error checking favorites", Toast.LENGTH_SHORT).show())
+        );
+    }
+
+    private void setupFavoriteClick() {
         fabFavorite.setOnClickListener(v -> {
-            if (isFavorite) {
-                showRemoveConfirmationDialog();
-            } else {
-                addToFavorites();
-            }
+            disposable.add(
+                    mealRepository.isFavorite(mealDetail.getId())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(isFav -> {
+                                if (isFav) {
+                                    // Remove from Room
+                                    mealRepository.removeFromFavorites(mealDetail).subscribe();
+                                    fabFavorite.setImageResource(R.drawable.ic_favorite_border);
+                                    ViewUtils.showError(getView(), getString(R.string.removed_from_favorites));
+                                } else {
+                                    // Add to Room
+                                    mealRepository.addToFavorites(mealDetail).subscribe();
+                                    fabFavorite.setImageResource(R.drawable.ic_favorite);
+                                    ViewUtils.showSuccess(getView(), getString(R.string.added_to_favorites));
+                                }
+                            }, error -> Toast.makeText(requireContext(), "Operation failed", Toast.LENGTH_SHORT).show())
+            );
         });
-    }
-
-    private void addToFavorites() {
-        sharedPrefManager.addMealToFavorites(mealDetail);
-        isFavorite = true;
-        updateFavoriteIcon();
-        ViewUtils.showSuccess(getView(), getString(R.string.added_to_favorites));
-    }
-
-    private void showRemoveConfirmationDialog() {
-        new AlertDialog.Builder(requireContext()).setTitle(R.string.remove_from_favorites).setMessage(R.string.are_you_sure_you_want_to_remove_this_meal_from_your_favorites).setPositiveButton(R.string.remove, (dialog, which) -> {
-            // User clicked Yes
-            sharedPrefManager.removeMealFromFavorites(mealDetail.getId());
-            isFavorite = false;
-            updateFavoriteIcon();
-            ViewUtils.showError(getView(), getString(R.string.removed_from_favorites));
-        }).setNegativeButton("Cancel", (dialog, which) -> {
-            // User clicked Cancel
-            dialog.dismiss();
-        }).create().show();
-    }
-
-    private void updateFavoriteIcon() {
-        if (isFavorite) {
-            fabFavorite.setImageResource(R.drawable.ic_favorite);
-
-        } else {
-            fabFavorite.setImageResource(R.drawable.ic_favorite_border);
-
-        }
     }
 
     private void loadVideo(String url) {
@@ -133,5 +145,12 @@ public class MealDetailsFragment extends Fragment {
         } else {
             webView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Clear subscriptions to prevent memory leaks
+        disposable.clear();
     }
 }
