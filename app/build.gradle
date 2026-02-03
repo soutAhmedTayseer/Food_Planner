@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     id 'androidx.navigation.safeargs'
+    id 'com.google.gms.google-services'
+
 }
 
 android {
@@ -59,5 +61,20 @@ dependencies {
 
     //Material Design
     implementation 'com.google.android.material:material:1.11.0'
+
+    // Firebase BoM (Bill of Materials) - Manages versions automatically
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+
+    implementation 'com.google.firebase:firebase-analytics'
+
+
+    // Room Database
+    implementation "androidx.room:room-runtime:2.6.1"
+    implementation "androidx.room:room-rxjava3:2.6.1" // For RxJava support
+    annotationProcessor "androidx.room:room-compiler:2.6.1"
+
+
 
 }
