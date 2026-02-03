@@ -14,9 +14,14 @@ import java.util.List;
 
 public class SharedPrefManager {
     private static final String PREF_NAME = "FoodPlannerPrefs";
-    private static final String KEY_FAVS = "favorite_meals";
 
-    // New Keys for Daily Meal
+    // Session Keys
+    private static final String KEY_IS_LOGGED_IN = "is_logged_in";
+    private static final String KEY_USER_EMAIL = "user_email";
+    private static final String KEY_USER_UID = "user_uid";
+
+    // Existing Keys
+    private static final String KEY_FAVS = "favorite_meals";
     private static final String KEY_DAILY_MEAL = "daily_meal_obj";
     private static final String KEY_DAILY_EXPIRY = "daily_meal_expiry";
 
@@ -26,6 +31,34 @@ public class SharedPrefManager {
     public SharedPrefManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         gson = new Gson();
+    }
+
+    // --- SESSION MANAGEMENT (New) ---
+
+    public void saveUserSession(String email, String uid) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putString(KEY_USER_EMAIL, email);
+        editor.putString(KEY_USER_UID, uid);
+        editor.apply();
+    }
+
+    public boolean isLoggedIn() {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
+
+    public String getUserEmail() {
+        return sharedPreferences.getString(KEY_USER_EMAIL, null);
+    }
+
+    public String getUserUid() {
+        return sharedPreferences.getString(KEY_USER_UID, null);
+    }
+
+    public void logoutUser() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear(); // Clears all data including favorites/daily meal
+        editor.apply();
     }
 
     // --- Favorites Logic (Existing) ---
@@ -41,7 +74,6 @@ public class SharedPrefManager {
 
     public void addMealToFavorites(MealDetail meal) {
         List<MealDetail> currentList = getFavorites();
-        // Assuming getId() is the correct getter based on your code
         for (MealDetail m : currentList) {
             if (m.getId().equals(meal.getId())) return;
         }
@@ -73,31 +105,22 @@ public class SharedPrefManager {
         sharedPreferences.edit().putString(KEY_FAVS, json).apply();
     }
 
-    // --- Daily Meal Logic (New) ---
-
+    // --- Daily Meal Logic ---
     public void saveDailyMeal(MealDetail meal) {
-        // 1. Serialize the full object
         String mealJson = gson.toJson(meal);
-
-        // 2. Calculate Expiry: 12:00 PM Tomorrow
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1); // Move to tomorrow
-        calendar.set(Calendar.HOUR_OF_DAY, 12); // Set 12 PM
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         long expiryTime = calendar.getTimeInMillis();
 
-        // 3. Save
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_DAILY_MEAL, mealJson);
         editor.putLong(KEY_DAILY_EXPIRY, expiryTime);
         editor.apply();
     }
 
-    /**
-     * Returns the saved meal ONLY if it hasn't expired.
-     * Returns null if expired or not found.
-     */
     public MealDetail getValidDailyMeal() {
         long expiryTime = sharedPreferences.getLong(KEY_DAILY_EXPIRY, 0);
         long currentTime = System.currentTimeMillis();
@@ -108,6 +131,6 @@ public class SharedPrefManager {
                 return gson.fromJson(json, MealDetail.class);
             }
         }
-        return null; // Expired or empty
+        return null;
     }
 }
