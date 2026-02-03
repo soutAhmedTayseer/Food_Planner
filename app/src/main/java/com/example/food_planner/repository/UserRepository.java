@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.food_planner.db.FoodPlannerDatabase;
 import com.example.food_planner.db.UserDao;
 import com.example.food_planner.model.UserEntity;
+import com.example.food_planner.utils.SharedPrefManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -12,7 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UserRepository {
@@ -20,11 +20,13 @@ public class UserRepository {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private UserDao userDao;
+    private SharedPrefManager sharedPrefManager;
 
     public UserRepository(Context context) {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         userDao = FoodPlannerDatabase.getInstance(context).userDao();
+        sharedPrefManager = new SharedPrefManager(context);
     }
 
     // --- FIREBASE ACTIONS ---
@@ -36,12 +38,17 @@ public class UserRepository {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         if (firebaseUser != null) {
-                            // Save extra data to Firestore
-                            saveUserToFirestore(firebaseUser.getUid(), email);
+                            String uid = firebaseUser.getUid();
 
-                            // Save to Room (Local Cache)
-                            UserEntity localUser = new UserEntity(firebaseUser.getUid(), email);
+                            // 1. Save to Firestore (Cloud)
+                            saveUserToFirestore(uid, email);
+
+                            // 2. Save to Room (Local)
+                            UserEntity localUser = new UserEntity(uid, email);
                             saveUserLocally(localUser);
+
+                            // 3. Save Session (SharedPrefs)
+                            sharedPrefManager.saveUserSession(email, uid);
 
                             callback.onSuccess();
                         }
@@ -58,9 +65,14 @@ public class UserRepository {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         if (firebaseUser != null) {
-                            // Sync: Save to Room so app knows we are logged in locally
-                            UserEntity localUser = new UserEntity(firebaseUser.getUid(), email);
-                            saveUserLocally(localUser);
+                            String uid = firebaseUser.getUid();
+
+                            // 1. Save Session (SharedPrefs)
+                            sharedPrefManager.saveUserSession(email, uid);
+
+                            // 2. SYNC: Download Data from Firestore to Room
+                            syncUserFromFirestore(uid);
+
                             callback.onSuccess();
                         }
                     } else {
@@ -69,24 +81,43 @@ public class UserRepository {
                 });
     }
 
+    // 3. Logout
+    public void logout() {
+        mAuth.signOut();
+        sharedPrefManager.logoutUser();
+        // Optionally clear Room DB here
+        userDao.clearUser().subscribeOn(Schedulers.io()).subscribe();
+    }
+
     // --- HELPERS ---
 
     private void saveUserToFirestore(String uid, String email) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", email);
         userMap.put("uid", uid);
-
         db.collection("users").document(uid).set(userMap);
     }
 
+    // Retrieves archived data from server and puts it in local DB
+    private void syncUserFromFirestore(String uid) {
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String email = documentSnapshot.getString("email");
+                        // Add more fields here if you have them (e.g. name, preferences)
+
+                        UserEntity user = new UserEntity(uid, email);
+                        saveUserLocally(user);
+                    }
+                });
+    }
+
     private void saveUserLocally(UserEntity user) {
-        // Fire and forget RxJava call to save to Room
         userDao.insertUser(user)
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
-    // Simple interface to communicate back to Activity
     public interface AuthCallback {
         void onSuccess();
 
