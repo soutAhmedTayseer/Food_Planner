@@ -13,6 +13,7 @@ import com.example.food_planner.R;
 import com.example.food_planner.signup.SignUpActivity;
 import com.example.food_planner.homescreen.HomeActivity;
 import com.example.food_planner.repository.UserRepository;
+import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.ViewUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -22,11 +23,19 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText etEmail, etPassword;
     private View rootView;
-    private UserRepository userRepository; // Use the Repo
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // --- 1. CHECK SESSION BEFORE LOADING VIEW ---
+        SharedPrefManager prefManager = new SharedPrefManager(this);
+        if (prefManager.isLoggedIn()) {
+            navigateToHome();
+            return; // Stop loading this activity
+        }
+
         setContentView(R.layout.activity_login);
 
         // Initialize Repository
