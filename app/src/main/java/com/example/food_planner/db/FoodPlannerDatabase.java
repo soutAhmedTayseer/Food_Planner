@@ -5,14 +5,20 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
+import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.UserEntity;
 
-@Database(entities = {UserEntity.class}, version = 1, exportSchema = false)
+// CHANGE: Increment version number (e.g., 2 -> 3)
+@Database(entities = {UserEntity.class, MealDetail.class}, version = 3, exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class FoodPlannerDatabase extends RoomDatabase {
     private static volatile FoodPlannerDatabase INSTANCE;
 
     public abstract UserDao userDao();
+
+    public abstract MealDao mealDao();
 
     public static FoodPlannerDatabase getInstance(Context context) {
         if (INSTANCE == null) {
@@ -20,6 +26,8 @@ public abstract class FoodPlannerDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FoodPlannerDatabase.class, "food_planner_db")
+                            // This deletes the old database to create the new one with userId column
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }
