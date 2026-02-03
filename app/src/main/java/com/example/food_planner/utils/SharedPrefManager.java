@@ -5,25 +5,20 @@ import android.content.SharedPreferences;
 
 import com.example.food_planner.model.MealDetail;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class SharedPrefManager {
     private static final String PREF_NAME = "FoodPlannerPrefs";
 
-    // Session Keys
+    // Keys
+    private static final String KEY_USER_UID = "user_uid";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private static final String KEY_USER_EMAIL = "user_email";
-    private static final String KEY_USER_UID = "user_uid";
 
-    // Existing Keys
-    private static final String KEY_FAVS = "favorite_meals";
-    private static final String KEY_DAILY_MEAL = "daily_meal_obj";
-    private static final String KEY_DAILY_EXPIRY = "daily_meal_expiry";
+    // Prefixes for dynamic keys (e.g. "daily_meal_USER123")
+    private static final String KEY_DAILY_MEAL_PREFIX = "daily_meal_";
+    private static final String KEY_DAILY_EXPIRY_PREFIX = "daily_meal_expiry_";
 
     private final SharedPreferences sharedPreferences;
     private final Gson gson;
@@ -33,7 +28,11 @@ public class SharedPrefManager {
         gson = new Gson();
     }
 
-    // --- SESSION MANAGEMENT (New) ---
+// --- SESSION MANAGEMENT ---
+
+    public boolean isLoggedIn() {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
 
     public void saveUserSession(String email, String uid) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -43,94 +42,61 @@ public class SharedPrefManager {
         editor.apply();
     }
 
-    public boolean isLoggedIn() {
-        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+    public String getUserUid() {
+        return sharedPreferences.getString(KEY_USER_UID, "");
     }
 
     public String getUserEmail() {
-        return sharedPreferences.getString(KEY_USER_EMAIL, null);
-    }
-
-    public String getUserUid() {
-        return sharedPreferences.getString(KEY_USER_UID, null);
+        return sharedPreferences.getString(KEY_USER_EMAIL, "");
     }
 
     public void logoutUser() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear(); // Clears all data including favorites/daily meal
+        editor.remove(KEY_IS_LOGGED_IN);
+        editor.remove(KEY_USER_UID);
+        editor.remove(KEY_USER_EMAIL);
+        // Do NOT clear everything (editor.clear()) if you want to keep the Daily Meal cache
         editor.apply();
     }
 
-    // --- Favorites Logic (Existing) ---
-    public List<MealDetail> getFavorites() {
-        String json = sharedPreferences.getString(KEY_FAVS, null);
-        if (json == null) {
-            return new ArrayList<>();
-        }
-        Type type = new TypeToken<List<MealDetail>>() {
-        }.getType();
-        return gson.fromJson(json, type);
-    }
+    // --- DAILY MEAL (USER ISOLATED) ---
 
-    public void addMealToFavorites(MealDetail meal) {
-        List<MealDetail> currentList = getFavorites();
-        for (MealDetail m : currentList) {
-            if (m.getId().equals(meal.getId())) return;
-        }
-        currentList.add(meal);
-        saveList(currentList);
-    }
-
-    public void removeMealFromFavorites(String mealId) {
-        List<MealDetail> currentList = getFavorites();
-        for (int i = 0; i < currentList.size(); i++) {
-            if (currentList.get(i).getId().equals(mealId)) {
-                currentList.remove(i);
-                saveList(currentList);
-                return;
-            }
-        }
-    }
-
-    public boolean isFavorite(String mealId) {
-        List<MealDetail> currentList = getFavorites();
-        for (MealDetail m : currentList) {
-            if (m.getId().equals(mealId)) return true;
-        }
-        return false;
-    }
-
-    private void saveList(List<MealDetail> list) {
-        String json = gson.toJson(list);
-        sharedPreferences.edit().putString(KEY_FAVS, json).apply();
-    }
-
-    // --- Daily Meal Logic ---
     public void saveDailyMeal(MealDetail meal) {
+        String uid = getUserUid();
+        if (uid.isEmpty()) return; // Don't save if no user
+
         String mealJson = gson.toJson(meal);
+
+        // Calculate Midnight (00:00) of Tomorrow
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.add(Calendar.DAY_OF_YEAR, 1); // Tomorrow
+        calendar.set(Calendar.HOUR_OF_DAY, 0); // 00:00 (Midnight)
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         long expiryTime = calendar.getTimeInMillis();
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_DAILY_MEAL, mealJson);
-        editor.putLong(KEY_DAILY_EXPIRY, expiryTime);
-        editor.apply();
+        // Save with specific User Key
+        sharedPreferences.edit()
+                .putString(KEY_DAILY_MEAL_PREFIX + uid, mealJson)
+                .putLong(KEY_DAILY_EXPIRY_PREFIX + uid, expiryTime)
+                .apply();
     }
 
     public MealDetail getValidDailyMeal() {
-        long expiryTime = sharedPreferences.getLong(KEY_DAILY_EXPIRY, 0);
+        String uid = getUserUid();
+        if (uid.isEmpty()) return null;
+
+        long expiryTime = sharedPreferences.getLong(KEY_DAILY_EXPIRY_PREFIX + uid, 0);
         long currentTime = System.currentTimeMillis();
 
+        // If current time is BEFORE expiry, the meal is valid
         if (currentTime < expiryTime) {
-            String json = sharedPreferences.getString(KEY_DAILY_MEAL, null);
+            String json = sharedPreferences.getString(KEY_DAILY_MEAL_PREFIX + uid, null);
             if (json != null) {
                 return gson.fromJson(json, MealDetail.class);
             }
         }
-        return null;
+        return null; // Expired or Empty
     }
 }
