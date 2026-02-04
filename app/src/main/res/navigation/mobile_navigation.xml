@@ -10,7 +10,6 @@
         android:name="com.example.food_planner.homescreen.view.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
-
         <action
             android:id="@+id/action_home_to_mealDetails"
             app:destination="@id/mealDetailsFragment"
@@ -25,7 +24,6 @@
         android:name="com.example.food_planner.searchscreen.view.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
-
         <action
             android:id="@+id/action_search_to_list"
             app:destination="@id/mealsListFragment"
@@ -39,14 +37,12 @@
         android:id="@+id/mealsListFragment"
         android:name="com.example.food_planner.searchscreen.view.MealsListFragment"
         android:label="Meals List">
-
         <argument
             android:name="filterType"
             app:argType="string" />
         <argument
             android:name="filterName"
             app:argType="string" />
-
         <action
             android:id="@+id/action_list_to_details"
             app:destination="@id/mealDetailsFragment"
@@ -71,7 +67,6 @@
         android:name="com.example.food_planner.favoritescreen.view.FavoritesFragment"
         android:label="Favorites"
         tools:layout="@layout/fragment_favorites">
-
         <action
             android:id="@+id/action_favorites_to_mealDetails"
             app:destination="@id/mealDetailsFragment"
@@ -81,12 +76,20 @@
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
-
     <fragment
         android:id="@+id/nav_plan"
         android:name="com.example.food_planner.planscreen.view.WeeklyPlanFragment"
         android:label="Plan"
-        tools:layout="@layout/fragment_plan" />
+        tools:layout="@layout/fragment_plan">
+
+        <action
+            android:id="@+id/action_plan_to_details"
+            app:destination="@id/mealDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_profile"
@@ -94,4 +97,3 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>
-
