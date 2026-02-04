@@ -76,4 +76,9 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="language">Language</string>
     <string name="log_out">Log Out</string>
+    <string name="monthly_schedule">Monthly Schedule</string>
+    <string name="add_to_calendar">Add to Calendar</string>
+    <string name="remove_from_plan">Remove from plan</string>
+    <string name="no_meals_planned_for_this_day">No meals planned for this day.</string>
+    <string name="meals_for_selected_date">Meals for Selected Date</string>
 </resources>
