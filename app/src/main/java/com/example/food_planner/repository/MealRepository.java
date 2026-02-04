@@ -1,11 +1,16 @@
 package com.example.food_planner.repository;
 
 import android.content.Context;
+
 import com.example.food_planner.db.FoodPlannerDatabase;
 import com.example.food_planner.db.MealDao;
+import com.example.food_planner.db.PlanDao;
 import com.example.food_planner.model.MealDetail;
+import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.utils.SharedPrefManager;
+
 import java.util.List;
+
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -14,11 +19,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MealRepository {
 
     private final MealDao mealDao;
+    private final PlanDao planDao;     // <--- Add this
     private final SharedPrefManager sharedPrefManager;
 
     public MealRepository(Context context) {
         FoodPlannerDatabase db = FoodPlannerDatabase.getInstance(context);
         mealDao = db.mealDao();
+        planDao = db.planDao();        // <--- Initialize this
         sharedPrefManager = new SharedPrefManager(context);
     }
 
@@ -28,29 +35,42 @@ public class MealRepository {
         return uid.isEmpty() ? "guest" : uid;
     }
 
+    // --- FAVORITES ---
     public Completable addToFavorites(MealDetail meal) {
-        // IMPORTANT: Attach the User ID to the meal before saving
         meal.setUserId(getCurrentUserId());
-        return mealDao.insertFav(meal)
-                .subscribeOn(Schedulers.io());
+        return mealDao.insertFav(meal).subscribeOn(Schedulers.io());
     }
 
     public Completable removeFromFavorites(MealDetail meal) {
-        // Ensure we are deleting the meal belonging to THIS user
         meal.setUserId(getCurrentUserId());
-        return mealDao.deleteFav(meal)
-                .subscribeOn(Schedulers.io());
+        return mealDao.deleteFav(meal).subscribeOn(Schedulers.io());
     }
 
     public Flowable<List<MealDetail>> getStoredMeals() {
-        // Fetch only meals for the current user
-        return mealDao.getFavMeals(getCurrentUserId())
-                .subscribeOn(Schedulers.io());
+        return mealDao.getFavMeals(getCurrentUserId()).subscribeOn(Schedulers.io());
     }
 
     public Single<Boolean> isFavorite(String mealId) {
-        // Check if this specific user favorited this meal
-        return mealDao.isFav(mealId, getCurrentUserId())
-                .subscribeOn(Schedulers.io());
+        return mealDao.isFav(mealId, getCurrentUserId()).subscribeOn(Schedulers.io());
+    }
+
+    // --- CALENDAR / PLAN (ADD THESE METHODS) ---
+
+    public Completable addToPlan(MealDetail meal, String date) {
+        // Convert MealDetail -> PlanMeal with the specific date
+        PlanMeal planMeal = PlanMeal.fromMealDetail(meal, date, getCurrentUserId());
+        return planDao.insertPlan(planMeal).subscribeOn(Schedulers.io());
+    }
+
+    public Completable removeFromPlan(PlanMeal planMeal) {
+        return planDao.deletePlan(planMeal).subscribeOn(Schedulers.io());
+    }
+
+    public Flowable<List<PlanMeal>> getPlansByDate(String date) {
+        return planDao.getPlansByDate(date, getCurrentUserId()).subscribeOn(Schedulers.io());
+    }
+
+    public Flowable<List<PlanMeal>> getAllPlans() {
+        return planDao.getAllPlans(getCurrentUserId()).subscribeOn(Schedulers.io());
     }
 }
