@@ -8,10 +8,10 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.example.food_planner.model.MealDetail;
+import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.model.UserEntity;
 
-// CHANGE: Increment version number (e.g., 2 -> 3)
-@Database(entities = {UserEntity.class, MealDetail.class}, version = 3, exportSchema = false)
+@Database(entities = {UserEntity.class, MealDetail.class, PlanMeal.class}, version = 4, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class FoodPlannerDatabase extends RoomDatabase {
     private static volatile FoodPlannerDatabase INSTANCE;
@@ -20,14 +20,15 @@ public abstract class FoodPlannerDatabase extends RoomDatabase {
 
     public abstract MealDao mealDao();
 
+    public abstract PlanDao planDao();
+
     public static FoodPlannerDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (FoodPlannerDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FoodPlannerDatabase.class, "food_planner_db")
-                            // This deletes the old database to create the new one with userId column
-                            .fallbackToDestructiveMigration()
+                            .fallbackToDestructiveMigration() // Handles schema changes
                             .build();
                 }
             }

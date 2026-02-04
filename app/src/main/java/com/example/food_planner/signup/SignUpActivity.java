@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.food_planner.R;
 import com.example.food_planner.homescreen.HomeActivity;
 import com.example.food_planner.repository.UserRepository;
-import com.example.food_planner.utils.ViewUtils;
+import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Objects;
@@ -50,13 +50,13 @@ public class SignUpActivity extends AppCompatActivity {
                 userRepository.signUp(email, password, new UserRepository.AuthCallback() {
                     @Override
                     public void onSuccess() {
-                        ViewUtils.showSuccess(rootView, getString(R.string.account_created_successfully));
+                        SnackbarUtil.showSuccess(rootView, getString(R.string.account_created_successfully));
                         rootView.postDelayed(() -> navigateToHome(), 1000);
                     }
 
                     @Override
                     public void onError(String message) {
-                        ViewUtils.showError(rootView, "Error: " + message);
+                        SnackbarUtil.showError(rootView, "Error: " + message);
                     }
                 });
             }
@@ -67,19 +67,19 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateSignUp(String email, String password, String confirmPass) {
         if (email.isEmpty() || password.isEmpty() || confirmPass.isEmpty()) {
-            ViewUtils.showError(rootView, getString(R.string.please_fill_in_all_fields));
+            SnackbarUtil.showError(rootView, getString(R.string.please_fill_in_all_fields));
             return false;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            ViewUtils.showError(rootView, getString(R.string.please_enter_a_valid_email_address));
+            SnackbarUtil.showError(rootView, getString(R.string.please_enter_a_valid_email_address));
             return false;
         }
         if (password.length() < 6) {
-            ViewUtils.showError(rootView, getString(R.string.password_must_be_at_least_6_characters));
+            SnackbarUtil.showError(rootView, getString(R.string.password_must_be_at_least_6_characters));
             return false;
         }
         if (!password.equals(confirmPass)) {
-            ViewUtils.showError(rootView, getString(R.string.passwords_do_not_match));
+            SnackbarUtil.showError(rootView, getString(R.string.passwords_do_not_match));
             return false;
         }
         return true;

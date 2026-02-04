@@ -14,7 +14,7 @@ import com.example.food_planner.signup.SignUpActivity;
 import com.example.food_planner.homescreen.HomeActivity;
 import com.example.food_planner.repository.UserRepository;
 import com.example.food_planner.utils.SharedPrefManager;
-import com.example.food_planner.utils.ViewUtils;
+import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Objects;
@@ -62,27 +62,27 @@ public class LoginActivity extends AppCompatActivity {
                 userRepository.login(emailInput, passwordInput, new UserRepository.AuthCallback() {
                     @Override
                     public void onSuccess() {
-                        ViewUtils.showSuccess(rootView, getString(R.string.login_successful_welcome_back));
+                        SnackbarUtil.showSuccess(rootView, getString(R.string.login_successful_welcome_back));
                         rootView.postDelayed(() -> navigateToHome(), 1000);
                     }
 
                     @Override
                     public void onError(String message) {
-                        ViewUtils.showError(rootView, "Login Failed: " + message);
+                        SnackbarUtil.showError(rootView, "Login Failed: " + message);
                     }
                 });
             }
         });
 
         btnGuest.setOnClickListener(v -> {
-            ViewUtils.showSuccess(rootView, getString(R.string.entering_as_guest));
+            SnackbarUtil.showSuccess(rootView, getString(R.string.entering_as_guest));
             rootView.postDelayed(this::navigateToHome, 500);
         });
     }
 
     private boolean validateLogin(String email, String password) {
         if (email.isEmpty() || password.isEmpty()) {
-            ViewUtils.showError(rootView, getString(R.string.please_fill_in_all_fields));
+            SnackbarUtil.showError(rootView, getString(R.string.please_fill_in_all_fields));
             return false;
         }
         return true;

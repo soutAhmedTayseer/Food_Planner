@@ -19,7 +19,7 @@ import com.example.food_planner.R;
 import com.example.food_planner.model.MealItem;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
-import com.example.food_planner.utils.ViewUtils;
+import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.List;
@@ -161,7 +161,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void showError(String msg) {
-        ViewUtils.showError(getView(), msg);
+        SnackbarUtil.showError(getView(), msg);
         Log.e("API_ERROR", msg);
     }
 

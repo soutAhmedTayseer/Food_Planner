@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.example.food_planner.R;
 import com.example.food_planner.repository.UserRepository;
 import com.example.food_planner.signin.LoginActivity;
-import com.example.food_planner.utils.ViewUtils;
+import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -58,24 +58,24 @@ public class ProfileFragment extends Fragment {
         // Theme Toggle
         switchTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
             String msg = isChecked ? getString(R.string.dark_mode_enabled) : getString(R.string.light_mode_enabled);
-            ViewUtils.showMessage(getView(), msg);
+            SnackbarUtil.showMessage(getView(), msg);
         });
 
         // Language Toggle
         toggleLanguage.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
                 if (checkedId == R.id.btnLangEn) {
-                    ViewUtils.showMessage(getView(), getString(R.string.language_changed_to_english));
+                    SnackbarUtil.showMessage(getView(), getString(R.string.language_changed_to_english));
                 } else if (checkedId == R.id.btnLangAr) {
-                    ViewUtils.showMessage(getView(), getString(R.string.language_changed_to_arabic));
+                    SnackbarUtil.showMessage(getView(), getString(R.string.language_changed_to_arabic));
                 }
             }
         });
 
         // Profile Actions
-        btnEditProfile.setOnClickListener(v -> ViewUtils.showMessage(getView(), getString(R.string.edit_profile_clicked)));
-        btnChangePassword.setOnClickListener(v -> ViewUtils.showMessage(getView(), getString(R.string.change_password_clicked)));
-        btnBackup.setOnClickListener(v -> ViewUtils.showSuccess(getView(), getString(R.string.data_sync_started)));
+        btnEditProfile.setOnClickListener(v -> SnackbarUtil.showMessage(getView(), getString(R.string.edit_profile_clicked)));
+        btnChangePassword.setOnClickListener(v -> SnackbarUtil.showMessage(getView(), getString(R.string.change_password_clicked)));
+        btnBackup.setOnClickListener(v -> SnackbarUtil.showSuccess(getView(), getString(R.string.data_sync_started)));
 
         // Logout Action -> Shows Dialog
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
