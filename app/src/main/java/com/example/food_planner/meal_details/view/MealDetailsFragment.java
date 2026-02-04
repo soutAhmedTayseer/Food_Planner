@@ -1,5 +1,6 @@
 package com.example.food_planner.meal_details.view;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +21,12 @@ import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.repository.MealRepository;
-import com.example.food_planner.utils.ViewUtils;
+import com.example.food_planner.utils.AlertUtil; // Import AlertUtil
+import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -33,11 +38,13 @@ public class MealDetailsFragment extends Fragment {
     private ImageView ivThumb;
     private RecyclerView rvIngredients;
     private WebView webView;
+
     private FloatingActionButton fabFavorite;
+    private FloatingActionButton fabCalendar;
 
     private MealDetail mealDetail;
-    private MealRepository mealRepository; // Replaces SharedPrefManager
-    private final CompositeDisposable disposable = new CompositeDisposable(); // To manage subscriptions
+    private MealRepository mealRepository;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -50,8 +57,6 @@ public class MealDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-
-        // 1. Initialize Repository
         mealRepository = new MealRepository(requireContext());
 
         if (getArguments() != null) {
@@ -60,7 +65,6 @@ public class MealDetailsFragment extends Fragment {
 
             if (mealDetail != null) {
                 bindData();
-                // 2. Check initial favorite state from DB
                 checkFavoriteStatus();
             }
         }
@@ -73,7 +77,9 @@ public class MealDetailsFragment extends Fragment {
         ivThumb = view.findViewById(R.id.ivDetailThumb);
         rvIngredients = view.findViewById(R.id.rvIngredients);
         webView = view.findViewById(R.id.webViewVideo);
+
         fabFavorite = view.findViewById(R.id.fabFavorite);
+        fabCalendar = view.findViewById(R.id.fabCalendar);
     }
 
     private void bindData() {
@@ -81,10 +87,7 @@ public class MealDetailsFragment extends Fragment {
         tvArea.setText(mealDetail.getArea() + " | " + mealDetail.getCategory());
         tvInstructions.setText(mealDetail.getInstructions());
 
-        Glide.with(this)
-                .load(mealDetail.getThumbUrl())
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(ivThumb);
+        Glide.with(this).load(mealDetail.getThumbUrl()).placeholder(R.drawable.ic_launcher_background).into(ivThumb);
 
         IngredientsAdapter adapter = new IngredientsAdapter(mealDetail.getIngredients());
         rvIngredients.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -92,53 +95,72 @@ public class MealDetailsFragment extends Fragment {
 
         loadVideo(mealDetail.getYoutubeUrl());
 
-        // 3. Setup Click Listener (Your Snippet)
         setupFavoriteClick();
+
+        if (fabCalendar != null) {
+            fabCalendar.setOnClickListener(v -> showDatePicker());
+        }
+    }
+
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+            String date = String.format(Locale.US, "%d-%02d-%02d", year, month + 1, dayOfMonth);
+            saveToPlan(date);
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
+    }
+
+    private void saveToPlan(String date) {
+        disposable.add(mealRepository.addToPlan(mealDetail, date).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> SnackbarUtil.showSuccess(getView(), "Meal added to " + date), error -> SnackbarUtil.showError(getView(), "Failed to add: " + error.getMessage())));
     }
 
     private void checkFavoriteStatus() {
-        disposable.add(
-                mealRepository.isFavorite(mealDetail.getId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(isFav -> {
-                            if (isFav) {
-                                fabFavorite.setImageResource(R.drawable.ic_favorite);
-                            } else {
-                                fabFavorite.setImageResource(R.drawable.ic_favorite_border);
-                            }
-                        }, error -> Toast.makeText(requireContext(), "Error checking favorites", Toast.LENGTH_SHORT).show())
-        );
+        disposable.add(mealRepository.isFavorite(mealDetail.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(isFav -> {
+            if (isFav) {
+                fabFavorite.setImageResource(R.drawable.ic_favorite);
+            } else {
+                fabFavorite.setImageResource(R.drawable.ic_favorite_border);
+            }
+        }, error -> {
+        }));
     }
 
     private void setupFavoriteClick() {
         fabFavorite.setOnClickListener(v -> {
-            disposable.add(
-                    mealRepository.isFavorite(mealDetail.getId())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(isFav -> {
-                                if (isFav) {
-                                    // Remove from Room
-                                    mealRepository.removeFromFavorites(mealDetail).subscribe();
-                                    fabFavorite.setImageResource(R.drawable.ic_favorite_border);
-                                    ViewUtils.showError(getView(), getString(R.string.removed_from_favorites));
-                                } else {
-                                    // Add to Room
-                                    mealRepository.addToFavorites(mealDetail).subscribe();
-                                    fabFavorite.setImageResource(R.drawable.ic_favorite);
-                                    ViewUtils.showSuccess(getView(), getString(R.string.added_to_favorites));
-                                }
-                            }, error -> Toast.makeText(requireContext(), "Operation failed", Toast.LENGTH_SHORT).show())
-            );
+            disposable.add(mealRepository.isFavorite(mealDetail.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(isFav -> {
+                if (isFav) {
+                    // SHOW ALERT before removing
+                    AlertUtil.showConfirmationDialog(requireContext(), getString(R.string.remove_from_favorites), getString(R.string.are_you_sure_you_want_to_remove_this_meal_from_your_favorites), this::removeFromFavorites // Callback to actual remove logic
+                    );
+                } else {
+                    // Add directly
+                    addToFavorites();
+                }
+            }, error -> Toast.makeText(requireContext(), "Operation failed", Toast.LENGTH_SHORT).show()));
         });
+    }
+
+    private void addToFavorites() {
+        disposable.add(mealRepository.addToFavorites(mealDetail).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+            fabFavorite.setImageResource(R.drawable.ic_favorite);
+            SnackbarUtil.showSuccess(getView(), getString(R.string.added_to_favorites));
+        }, error -> SnackbarUtil.showError(getView(), "Failed to add")));
+    }
+
+    private void removeFromFavorites() {
+        disposable.add(mealRepository.removeFromFavorites(mealDetail).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+            fabFavorite.setImageResource(R.drawable.ic_favorite_border);
+            SnackbarUtil.showError(getView(), getString(R.string.removed_from_favorites));
+        }, error -> SnackbarUtil.showError(getView(), "Failed to remove")));
     }
 
     private void loadVideo(String url) {
         if (url != null && !url.isEmpty() && url.contains("v=")) {
             String videoId = url.split("v=")[1];
             String embedUrl = "https://www.youtube.com/embed/" + videoId;
-
             webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebChromeClient(new WebChromeClient());
             webView.loadUrl(embedUrl);
@@ -150,7 +172,6 @@ public class MealDetailsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Clear subscriptions to prevent memory leaks
         disposable.clear();
     }
 }
