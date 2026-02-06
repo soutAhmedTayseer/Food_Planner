@@ -15,6 +15,7 @@ public class SharedPrefManager {
     private static final String KEY_USER_UID = "user_uid";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private static final String KEY_USER_EMAIL = "user_email";
+    private static final String KEY_IS_GUEST = "is_guest";
 
     // Prefixes for dynamic keys (e.g. "daily_meal_USER123")
     private static final String KEY_DAILY_MEAL_PREFIX = "daily_meal_";
@@ -33,12 +34,22 @@ public class SharedPrefManager {
     public boolean isLoggedIn() {
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }
-
+    public boolean isGuest() {
+        return sharedPreferences.getBoolean(KEY_IS_GUEST, false);
+    }
     public void saveUserSession(String email, String uid) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putBoolean(KEY_IS_GUEST, false);
         editor.putString(KEY_USER_EMAIL, email);
         editor.putString(KEY_USER_UID, uid);
+        editor.apply();
+    }
+    public void saveGuestSession() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putBoolean(KEY_IS_GUEST, true);
+        editor.putString(KEY_USER_UID, "guest_id");
         editor.apply();
     }
 
@@ -53,6 +64,7 @@ public class SharedPrefManager {
     public void logoutUser() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(KEY_IS_LOGGED_IN);
+        editor.remove(KEY_IS_GUEST);
         editor.remove(KEY_USER_UID);
         editor.remove(KEY_USER_EMAIL);
         // Do NOT clear everything (editor.clear()) if you want to keep the Daily Meal cache
