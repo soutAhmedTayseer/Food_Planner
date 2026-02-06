@@ -7,6 +7,7 @@ import com.example.food_planner.db.UserDao;
 import com.example.food_planner.model.UserEntity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -32,27 +33,52 @@ public class UserRepository {
         sharedPrefManager = new SharedPrefManager(context);
     }
 
-    // 1. Sign Up (Updated to include Username)
+    // --- DELETE ACCOUNT ---
+    public void deleteAccount(String password, AuthCallback callback) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null && user.getEmail() != null) {
+            // 1. Re-authenticate User
+            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+            user.reauthenticate(credential).addOnCompleteListener(authTask -> {
+                if (authTask.isSuccessful()) {
+                    String uid = user.getUid();
+
+                    // 2. Delete from Firestore
+                    db.collection("users").document(uid).delete().addOnCompleteListener(firestoreTask -> {
+
+                        // 3. Delete from Firebase Auth (Permanent)
+                        user.delete().addOnCompleteListener(deleteTask -> {
+                            if (deleteTask.isSuccessful()) {
+                                // 4. Clear Local Data
+                                logout();
+                                callback.onSuccess();
+                            } else {
+                                callback.onError("Account deleted from DB but Auth deletion failed: " + deleteTask.getException().getMessage());
+                            }
+                        });
+                    });
+                } else {
+                    callback.onError("Incorrect password. Re-authentication failed.");
+                }
+            });
+        } else {
+            callback.onError("User not logged in.");
+        }
+    }
+
+    // --- EXISTING METHODS ---
+
     public void signUp(String username, String email, String password, AuthCallback callback) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 if (firebaseUser != null) {
                     String uid = firebaseUser.getUid();
-
-                    // A. Update Auth Profile with Username
-                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(username)
-                            .build();
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
                     firebaseUser.updateProfile(profileUpdates);
-
-                    // B. Save to Firestore (Cloud) with Username
                     saveUserToFirestore(uid, email, username);
-
-                    // C. Save to Room & Session
                     saveUserLocally(new UserEntity(uid, email));
                     sharedPrefManager.saveUserSession(email, uid);
-
                     callback.onSuccess();
                 }
             } else {
@@ -61,7 +87,6 @@ public class UserRepository {
         });
     }
 
-    // 2. Login (Unchanged)
     public void login(String email, String password, AuthCallback callback) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -78,14 +103,12 @@ public class UserRepository {
         });
     }
 
-    // 3. Logout
     public void logout() {
         mAuth.signOut();
         sharedPrefManager.logoutUser();
         userDao.clearUser().subscribeOn(Schedulers.io()).subscribe();
     }
 
-    // GOOGLE SIGN-IN
     public void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
@@ -94,15 +117,11 @@ public class UserRepository {
                 if (user != null) {
                     String uid = user.getUid();
                     String email = user.getEmail();
-                    String name = user.getDisplayName(); // Google provides name
-
-                    // Save/Update User in Firestore
+                    String name = user.getDisplayName();
                     saveUserToFirestore(uid, email, name != null ? name : "Google User");
-
                     sharedPrefManager.saveUserSession(email, uid);
                     saveUserLocally(new UserEntity(uid, email));
                     syncUserFromFirestore(uid);
-
                     callback.onSuccess();
                 }
             } else {
@@ -111,7 +130,6 @@ public class UserRepository {
         });
     }
 
-    // Helper: Save user info to Firestore (Updated with username)
     private void saveUserToFirestore(String uid, String email, String username) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", email);
@@ -120,12 +138,10 @@ public class UserRepository {
         db.collection("users").document(uid).set(userMap);
     }
 
-    // Helper: Update only the username in Firestore (used by ProfileFragment)
     public void updateNameInFirestore(String newName) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            db.collection("users").document(user.getUid())
-                    .update("username", newName);
+            db.collection("users").document(user.getUid()).update("username", newName);
         }
     }
 
@@ -145,6 +161,7 @@ public class UserRepository {
 
     public interface AuthCallback {
         void onSuccess();
+
         void onError(String message);
     }
 }
