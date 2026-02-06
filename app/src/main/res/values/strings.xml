@@ -81,4 +81,5 @@
     <string name="remove_from_plan">Remove from plan</string>
     <string name="no_meals_planned_for_this_day">No meals planned for this day.</string>
     <string name="meals_for_selected_date">Meals for Selected Date</string>
+    <string name="default_web_client_id">758796277733-giqkuajmd0ig1eueid3kj8m0tdjt3c8b.apps.googleusercontent.com</string>
 </resources>
