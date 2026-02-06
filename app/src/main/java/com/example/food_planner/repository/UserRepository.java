@@ -6,8 +6,10 @@ import com.example.food_planner.db.FoodPlannerDatabase;
 import com.example.food_planner.db.UserDao;
 import com.example.food_planner.model.UserEntity;
 import com.example.food_planner.utils.SharedPrefManager;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -29,56 +31,54 @@ public class UserRepository {
         sharedPrefManager = new SharedPrefManager(context);
     }
 
-    // --- FIREBASE ACTIONS ---
+    // FIREBASE ACTIONS
 
     // 1. Sign Up
     public void signUp(String email, String password, AuthCallback callback) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            String uid = firebaseUser.getUid();
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    String uid = firebaseUser.getUid();
 
-                            // 1. Save to Firestore (Cloud)
-                            saveUserToFirestore(uid, email);
+                    // 1. Save to Firestore (Cloud)
+                    saveUserToFirestore(uid, email);
 
-                            // 2. Save to Room (Local)
-                            UserEntity localUser = new UserEntity(uid, email);
-                            saveUserLocally(localUser);
+                    // 2. Save to Room (Local)
+                    UserEntity localUser = new UserEntity(uid, email);
+                    saveUserLocally(localUser);
 
-                            // 3. Save Session (SharedPrefs)
-                            sharedPrefManager.saveUserSession(email, uid);
+                    // 3. Save Session (SharedPrefs)
+                    sharedPrefManager.saveUserSession(email, uid);
 
-                            callback.onSuccess();
-                        }
-                    } else {
-                        callback.onError(task.getException().getMessage());
-                    }
-                });
+                    callback.onSuccess();
+                }
+            } else {
+                callback.onError(task.getException().getMessage());
+            }
+        });
     }
 
     // 2. Login
     public void login(String email, String password, AuthCallback callback) {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            String uid = firebaseUser.getUid();
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    String uid = firebaseUser.getUid();
 
-                            // 1. Save Session (SharedPrefs)
-                            sharedPrefManager.saveUserSession(email, uid);
+                    // 1. Save Session (SharedPrefs)
+                    sharedPrefManager.saveUserSession(email, uid);
 
-                            // 2. SYNC: Download Data from Firestore to Room
-                            syncUserFromFirestore(uid);
+                    // 2. SYNC: Download Data from Firestore to Room
+                    syncUserFromFirestore(uid);
 
-                            callback.onSuccess();
-                        }
-                    } else {
-                        callback.onError(task.getException().getMessage());
-                    }
-                });
+                    callback.onSuccess();
+                }
+            } else {
+                callback.onError(task.getException().getMessage());
+            }
+        });
     }
 
     // 3. Logout
@@ -89,7 +89,38 @@ public class UserRepository {
         userDao.clearUser().subscribeOn(Schedulers.io()).subscribe();
     }
 
-    // --- HELPERS ---
+    // HELPERS
+
+    // GOOGLE SIGN-IN ACTION
+    public void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    String uid = user.getUid();
+                    String email = user.getEmail();
+
+                    // 1. Save/Update User in Firestore (Ensures account exists in cloud)
+                    saveUserToFirestore(uid, email);
+
+                    // 2. Save Session Locally
+                    sharedPrefManager.saveUserSession(email, uid);
+
+                    // 3. Save User Entity to Room (Local DB)
+                    UserEntity localUser = new UserEntity(uid, email);
+                    saveUserLocally(localUser);
+
+                    // 4. Sync previous data (Favorites/Plans) from Firestore
+                    syncUserFromFirestore(uid);
+
+                    callback.onSuccess();
+                }
+            } else {
+                callback.onError(task.getException() != null ? task.getException().getMessage() : "Google Sign-In failed");
+            }
+        });
+    }
 
     private void saveUserToFirestore(String uid, String email) {
         Map<String, Object> userMap = new HashMap<>();
@@ -100,22 +131,19 @@ public class UserRepository {
 
     // Retrieves archived data from server and puts it in local DB
     private void syncUserFromFirestore(String uid) {
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String email = documentSnapshot.getString("email");
-                        // Add more fields here if you have them (e.g. name, preferences)
+        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String email = documentSnapshot.getString("email");
+                // Add more fields here if you have them (e.g. name, preferences)
 
-                        UserEntity user = new UserEntity(uid, email);
-                        saveUserLocally(user);
-                    }
-                });
+                UserEntity user = new UserEntity(uid, email);
+                saveUserLocally(user);
+            }
+        });
     }
 
     private void saveUserLocally(UserEntity user) {
-        userDao.insertUser(user)
-                .subscribeOn(Schedulers.io())
-                .subscribe();
+        userDao.insertUser(user).subscribeOn(Schedulers.io()).subscribe();
     }
 
     public interface AuthCallback {
