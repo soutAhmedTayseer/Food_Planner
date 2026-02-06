@@ -75,6 +75,8 @@ dependencies {
     implementation "androidx.room:room-rxjava3:2.6.1" // For RxJava support
     annotationProcessor "androidx.room:room-compiler:2.6.1"
 
+    // Youtube Player
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0'
 
 
 }
