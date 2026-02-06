@@ -87,4 +87,11 @@
     <string name="login">Login</string>
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="account_actions">Account Actions</string>
+    <string name="change_name">Change Name</string>
+    <string name="registered_account">Registered Account</string>
+    <string name="user_example_com">user@example.com</string>
+    <string name="user_name">User Name</string>
+    <string name="account_permanently_deleted">Account permanently deleted</string>
 </resources>
