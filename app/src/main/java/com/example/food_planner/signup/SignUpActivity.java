@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.food_planner.R;
 import com.example.food_planner.homescreen.HomeActivity;
 import com.example.food_planner.repository.UserRepository;
+import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -46,7 +47,6 @@ public class SignUpActivity extends AppCompatActivity {
         rootView = findViewById(android.R.id.content);
 
         // --- GOOGLE SIGN-IN SETUP ---
-        // Same configuration as LoginActivity
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -75,8 +75,8 @@ public class SignUpActivity extends AppCompatActivity {
         etConfirmPass = findViewById(R.id.etConfirmPass);
         Button btnSignUp = findViewById(R.id.btnSignUp);
         TextView tvGoToLogin = findViewById(R.id.tvGoToLogin);
-        ImageButton btnGoogle = findViewById(R.id.btnGoogle); // Make sure id is correct in XML
-        ImageButton btnGuest = findViewById(R.id.btnGuest); // Assuming Guest button exists here too
+        ImageButton btnGoogle = findViewById(R.id.btnGoogle);
+        ImageButton btnGuest = findViewById(R.id.btnGuest);
 
         // --- LISTENERS ---
 
@@ -87,8 +87,12 @@ public class SignUpActivity extends AppCompatActivity {
             });
         }
 
+        // Consolidated Guest Listener
         if (btnGuest != null) {
             btnGuest.setOnClickListener(v -> {
+                SharedPrefManager prefManager = new SharedPrefManager(this);
+                prefManager.saveGuestSession();
+
                 SnackbarUtil.showSuccess(rootView, getString(R.string.entering_as_guest));
                 rootView.postDelayed(this::navigateToHome, 500);
             });
