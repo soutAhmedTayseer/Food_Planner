@@ -82,4 +82,8 @@
     <string name="no_meals_planned_for_this_day">No meals planned for this day.</string>
     <string name="meals_for_selected_date">Meals for Selected Date</string>
     <string name="default_web_client_id">758796277733-giqkuajmd0ig1eueid3kj8m0tdjt3c8b.apps.googleusercontent.com</string>
+    <string name="login_required">Login Required</string>
+    <string name="you_need_to_sign_in_to_access_this_feature">You need to sign in to access this feature.</string>
+    <string name="login">Login</string>
+    <string name="cancel">Cancel</string>
 </resources>
