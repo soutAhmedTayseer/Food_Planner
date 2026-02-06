@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.food_planner.R;
 import com.example.food_planner.homescreen.HomeActivity;
 import com.example.food_planner.repository.UserRepository;
+import com.example.food_planner.signin.LoginActivity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -29,7 +30,7 @@ import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private TextInputEditText etEmail, etPassword, etConfirmPass;
+    private TextInputEditText etUsername, etEmail, etPassword, etConfirmPass;
     private View rootView;
     private UserRepository userRepository;
 
@@ -70,9 +71,11 @@ public class SignUpActivity extends AppCompatActivity {
         );
 
         // Initialize Views
+        etUsername = findViewById(R.id.etUsernameSign); // New Field
         etEmail = findViewById(R.id.etEmailSign);
         etPassword = findViewById(R.id.etPasswordSign);
         etConfirmPass = findViewById(R.id.etConfirmPass);
+
         Button btnSignUp = findViewById(R.id.btnSignUp);
         TextView tvGoToLogin = findViewById(R.id.tvGoToLogin);
         ImageButton btnGoogle = findViewById(R.id.btnGoogle);
@@ -87,7 +90,6 @@ public class SignUpActivity extends AppCompatActivity {
             });
         }
 
-        // Consolidated Guest Listener
         if (btnGuest != null) {
             btnGuest.setOnClickListener(v -> {
                 SharedPrefManager prefManager = new SharedPrefManager(this);
@@ -99,12 +101,14 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         btnSignUp.setOnClickListener(v -> {
+            String username = Objects.requireNonNull(etUsername.getText()).toString().trim();
             String email = Objects.requireNonNull(etEmail.getText()).toString().trim();
             String password = Objects.requireNonNull(etPassword.getText()).toString().trim();
             String confirmPass = Objects.requireNonNull(etConfirmPass.getText()).toString().trim();
 
-            if (validateSignUp(email, password, confirmPass)) {
-                userRepository.signUp(email, password, new UserRepository.AuthCallback() {
+            if (validateSignUp(username, email, password, confirmPass)) {
+                // IMPORTANT: Ensure UserRepository.signUp accepts 'username' as the first argument
+                userRepository.signUp(username, email, password, new UserRepository.AuthCallback() {
                     @Override
                     public void onSuccess() {
                         SnackbarUtil.showSuccess(rootView, getString(R.string.account_created_successfully));
@@ -119,7 +123,11 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-        tvGoToLogin.setOnClickListener(v -> finish());
+        tvGoToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
@@ -137,8 +145,8 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validateSignUp(String email, String password, String confirmPass) {
-        if (email.isEmpty() || password.isEmpty() || confirmPass.isEmpty()) {
+    private boolean validateSignUp(String username, String email, String password, String confirmPass) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPass.isEmpty()) {
             SnackbarUtil.showError(rootView, getString(R.string.please_fill_in_all_fields));
             return false;
         }
