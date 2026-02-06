@@ -122,7 +122,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="?attr/colorSurface"
@@ -130,11 +130,11 @@
                 app:strokeWidth="1dp"
                 android:layout_marginBottom="48dp">
 
-                <WebView
-                    android:id="@+id/webViewVideo"
+                <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+                    android:id="@+id/youtube_player_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/black"/>
+                    android:layout_height="wrap_content" />
+
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
