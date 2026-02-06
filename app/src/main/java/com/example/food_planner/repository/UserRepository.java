@@ -10,6 +10,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -31,24 +32,25 @@ public class UserRepository {
         sharedPrefManager = new SharedPrefManager(context);
     }
 
-    // FIREBASE ACTIONS
-
-    // 1. Sign Up
-    public void signUp(String email, String password, AuthCallback callback) {
+    // 1. Sign Up (Updated to include Username)
+    public void signUp(String username, String email, String password, AuthCallback callback) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 if (firebaseUser != null) {
                     String uid = firebaseUser.getUid();
 
-                    // 1. Save to Firestore (Cloud)
-                    saveUserToFirestore(uid, email);
+                    // A. Update Auth Profile with Username
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(username)
+                            .build();
+                    firebaseUser.updateProfile(profileUpdates);
 
-                    // 2. Save to Room (Local)
-                    UserEntity localUser = new UserEntity(uid, email);
-                    saveUserLocally(localUser);
+                    // B. Save to Firestore (Cloud) with Username
+                    saveUserToFirestore(uid, email, username);
 
-                    // 3. Save Session (SharedPrefs)
+                    // C. Save to Room & Session
+                    saveUserLocally(new UserEntity(uid, email));
                     sharedPrefManager.saveUserSession(email, uid);
 
                     callback.onSuccess();
@@ -59,20 +61,15 @@ public class UserRepository {
         });
     }
 
-    // 2. Login
+    // 2. Login (Unchanged)
     public void login(String email, String password, AuthCallback callback) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 if (firebaseUser != null) {
                     String uid = firebaseUser.getUid();
-
-                    // 1. Save Session (SharedPrefs)
                     sharedPrefManager.saveUserSession(email, uid);
-
-                    // 2. SYNC: Download Data from Firestore to Room
                     syncUserFromFirestore(uid);
-
                     callback.onSuccess();
                 }
             } else {
@@ -85,13 +82,10 @@ public class UserRepository {
     public void logout() {
         mAuth.signOut();
         sharedPrefManager.logoutUser();
-        // Optionally clear Room DB here
         userDao.clearUser().subscribeOn(Schedulers.io()).subscribe();
     }
 
-    // HELPERS
-
-    // GOOGLE SIGN-IN ACTION
+    // GOOGLE SIGN-IN
     public void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
@@ -100,18 +94,13 @@ public class UserRepository {
                 if (user != null) {
                     String uid = user.getUid();
                     String email = user.getEmail();
+                    String name = user.getDisplayName(); // Google provides name
 
-                    // 1. Save/Update User in Firestore (Ensures account exists in cloud)
-                    saveUserToFirestore(uid, email);
+                    // Save/Update User in Firestore
+                    saveUserToFirestore(uid, email, name != null ? name : "Google User");
 
-                    // 2. Save Session Locally
                     sharedPrefManager.saveUserSession(email, uid);
-
-                    // 3. Save User Entity to Room (Local DB)
-                    UserEntity localUser = new UserEntity(uid, email);
-                    saveUserLocally(localUser);
-
-                    // 4. Sync previous data (Favorites/Plans) from Firestore
+                    saveUserLocally(new UserEntity(uid, email));
                     syncUserFromFirestore(uid);
 
                     callback.onSuccess();
@@ -122,20 +111,28 @@ public class UserRepository {
         });
     }
 
-    private void saveUserToFirestore(String uid, String email) {
+    // Helper: Save user info to Firestore (Updated with username)
+    private void saveUserToFirestore(String uid, String email, String username) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", email);
         userMap.put("uid", uid);
+        userMap.put("username", username);
         db.collection("users").document(uid).set(userMap);
     }
 
-    // Retrieves archived data from server and puts it in local DB
+    // Helper: Update only the username in Firestore (used by ProfileFragment)
+    public void updateNameInFirestore(String newName) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            db.collection("users").document(user.getUid())
+                    .update("username", newName);
+        }
+    }
+
     private void syncUserFromFirestore(String uid) {
         db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String email = documentSnapshot.getString("email");
-                // Add more fields here if you have them (e.g. name, preferences)
-
                 UserEntity user = new UserEntity(uid, email);
                 saveUserLocally(user);
             }
@@ -148,7 +145,6 @@ public class UserRepository {
 
     public interface AuthCallback {
         void onSuccess();
-
         void onError(String message);
     }
 }
