@@ -1,10 +1,11 @@
 package com.example.food_planner.favoritescreen.view;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,10 +16,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food_planner.R;
-import com.example.food_planner.favoritescreen.view.FavoritesAdapter;
-import com.example.food_planner.favoritescreen.view.FavoritesFragmentDirections;
 import com.example.food_planner.repository.MealRepository;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.food_planner.signin.LoginActivity;
+import com.example.food_planner.utils.AlertUtil;
+import com.example.food_planner.utils.SharedPrefManager;
+
+import java.util.ArrayList;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -26,9 +29,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 public class FavoritesFragment extends Fragment {
 
     private RecyclerView rvFavorites;
+    private TextView tvEmptyState;
+    private View guestOverlay;
+
     private FavoritesAdapter adapter;
     private MealRepository mealRepository;
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private SharedPrefManager sharedPrefManager;
 
     @Nullable
     @Override
@@ -40,30 +47,89 @@ public class FavoritesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Init Repository
+        initViews(view);
+        sharedPrefManager = new SharedPrefManager(requireContext());
+
+        if (sharedPrefManager.isGuest()) {
+            setupGuestMode();
+        } else {
+            setupUserMode(view);
+        }
+    }
+
+    private void initViews(View view) {
+        rvFavorites = view.findViewById(R.id.rvFavorites);
+        tvEmptyState = view.findViewById(R.id.tvEmptyState);
+        guestOverlay = view.findViewById(R.id.guestOverlay);
+    }
+
+    private void setupGuestMode() {
+        if (guestOverlay != null) {
+            guestOverlay.setVisibility(View.VISIBLE);
+
+            // Make the entire overlay clickable to show the login dialog
+            guestOverlay.setOnClickListener(v -> showGuestLoginDialog());
+        }
+        // Optionally prompt immediately
+        showGuestLoginDialog();
+    }
+
+    private void showGuestLoginDialog() {
+        AlertUtil.showLoginRequiredDialog(requireContext(), () -> {
+            sharedPrefManager.logoutUser();
+            Intent intent = new Intent(requireContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        });
+    }
+
+    private void setupUserMode(View view) {
+        if (guestOverlay != null) {
+            guestOverlay.setVisibility(View.GONE);
+        }
+
         mealRepository = new MealRepository(requireContext());
 
-        // Setup RecyclerView
-        rvFavorites = view.findViewById(R.id.rvFavorites);
         rvFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FavoritesAdapter();
         rvFavorites.setAdapter(adapter);
 
-        // 1. Navigation on Click
+        // Navigation
         adapter.setOnFavItemClickListener(meal -> {
-            FavoritesFragmentDirections.ActionFavoritesToMealDetails action = FavoritesFragmentDirections.actionFavoritesToMealDetails(meal);
+            FavoritesFragmentDirections.ActionFavoritesToMealDetails action =
+                    FavoritesFragmentDirections.actionFavoritesToMealDetails(meal);
             Navigation.findNavController(view).navigate(action);
         });
 
-        // 2. Load Data from Room
         loadFavorites();
     }
 
     private void loadFavorites() {
-        disposable.add(mealRepository.getStoredMeals().observeOn(AndroidSchedulers.mainThread()).subscribe(meals -> adapter.setList(meals), error -> Toast.makeText(getContext(), "Error loading favorites", Toast.LENGTH_SHORT).show()));
+        disposable.add(mealRepository.getStoredMeals()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        meals -> {
+                            if (meals == null || meals.isEmpty()) {
+                                // NO FAVORITES: Show Empty State
+                                rvFavorites.setVisibility(View.GONE);
+                                tvEmptyState.setVisibility(View.VISIBLE);
+                                adapter.setList(new ArrayList<>());
+                            } else {
+                                // FAVORITES EXIST: Show Recycler
+                                rvFavorites.setVisibility(View.VISIBLE);
+                                tvEmptyState.setVisibility(View.GONE);
+                                adapter.setList(meals);
+                            }
+                        },
+                        error -> {
+                            Toast.makeText(getContext(), "Error loading favorites", Toast.LENGTH_SHORT).show();
+                            // Fallback to empty state on error
+                            rvFavorites.setVisibility(View.GONE);
+                            tvEmptyState.setVisibility(View.VISIBLE);
+                        }
+                ));
     }
 
-    // Clean up RxJava
     @Override
     public void onDestroyView() {
         super.onDestroyView();

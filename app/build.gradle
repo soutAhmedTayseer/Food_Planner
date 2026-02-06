@@ -66,8 +66,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
-
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.android.gms:play-services-auth:21.0.0'
 
 
     // Room Database
@@ -75,6 +75,8 @@ dependencies {
     implementation "androidx.room:room-rxjava3:2.6.1" // For RxJava support
     annotationProcessor "androidx.room:room-compiler:2.6.1"
 
+    // Youtube Player
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0'
 
 
 }

@@ -9,7 +9,7 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="?android:attr/windowBackground"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -17,67 +17,51 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="32dp">
+                android:orientation="vertical"
+                android:padding="24dp">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivProfile"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:layout_marginTop="48dp"
-                    android:padding="4dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_profile"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                    app:strokeColor="?attr/colorPrimary"
-                    app:strokeWidth="3dp" />
+                <TextView
+                    android:id="@+id/tvProfileTitle"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile"
+                    android:textColor="@color/brand_primary" />
 
                 <TextView
                     android:id="@+id/tvUserName"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/name"
-                    android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/ivProfile" />
+                    android:layout_marginTop="32dp"
+                    android:text="@string/user_name"
+                    android:textColor="@color/brand_secondary" />
 
                 <TextView
                     android:id="@+id/tvUserEmail"
+                    style="@style/TextAppearance.FoodPlanner.BodyLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/email_example_com"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorSecondary"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvUserName" />
+                    android:text="@string/user_example_com"
+                    android:textColor="@color/brand_secondary" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditProfile"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAccountType"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/edit_profile"
-                    android:textColor="?attr/colorPrimary"
-                    app:icon="@drawable/ic_profile"
-                    app:iconTint="?attr/colorPrimary"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvUserEmail"
-                    app:strokeColor="?attr/colorPrimary" />
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:text="@string/registered_account"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    app:chipBackgroundColor="?attr/colorSecondaryContainer" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -89,234 +73,100 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
             android:orientation="vertical"
             android:padding="16dp">
 
             <TextView
+                style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="12dp"
                 android:text="@string/general"
-                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:textColor="?attr/colorPrimary" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/SettingsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="32dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:id="@+id/btnChangePassword"
+                    <TextView
+                        android:id="@+id/btnEditName"
+                        style="@style/TextAppearance.FoodPlanner.BodyLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
+                        android:drawablePadding="20dp"
                         android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_lock"
-                            app:tint="?attr/colorSecondary" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="@string/change_password"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                            android:textColor="?android:attr/textColorPrimary" />
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="?attr/colorPrimaryVariant" />
-                    </LinearLayout>
+                        android:padding="20dp"
+                        android:text="@string/change_name"
+                        app:drawableStartCompat="@drawable/ic_profile"
+                        app:drawableTint="?attr/colorOnSurfaceVariant" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:alpha="0.2"
-                        android:background="?attr/colorPrimaryVariant" />
+                        android:alpha="0.5"
+                        android:background="?attr/colorOutlineVariant" />
 
-                    <LinearLayout
-                        android:id="@+id/btnBackup"
+                    <TextView
+                        android:id="@+id/btnChangePassword"
+                        style="@style/TextAppearance.FoodPlanner.BodyLarge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
+                        android:drawablePadding="20dp"
                         android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:padding="20dp"
+                        android:text="@string/change_password"
+                        app:drawableStartCompat="@drawable/ic_lock"
+                        app:drawableTint="?attr/colorOnSurfaceVariant" />
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_cloud_upload"
-                            app:tint="?attr/colorSecondary" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="@string/sync_backup_data"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                            android:textColor="?android:attr/textColorPrimary" />
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="?attr/colorPrimaryVariant" />
-                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
+                style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/preferences"
-                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                android:textColor="?attr/colorPrimary" />
-
-            <com.google.android.material.card.MaterialCardView
-                style="@style/SettingsCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_dark_mode"
-                            app:tint="?attr/colorSecondary" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="@string/dark_mode"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                            android:textColor="?android:attr/textColorPrimary" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switchTheme"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:thumbTint="?attr/colorOnPrimary"
-                            app:trackTint="?attr/colorPrimaryVariant" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:alpha="0.2"
-                        android:background="?attr/colorPrimaryVariant" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_language"
-                            app:tint="?attr/colorSecondary" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="@string/language"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                            android:textColor="?android:attr/textColorPrimary" />
-
-                        <com.google.android.material.button.MaterialButtonToggleGroup
-                            android:id="@+id/toggleLanguage"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:checkedButton="@id/btnLangEn"
-                            app:selectionRequired="true"
-                            app:singleSelection="true">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnLangEn"
-                                style="@style/Widget.Material3.Button.OutlinedButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="0dp"
-                                android:paddingHorizontal="16dp"
-                                android:text="@string/en"
-                                android:textColor="?attr/colorPrimary"
-                                android:textSize="12sp"
-                                app:strokeColor="?attr/colorPrimary" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnLangAr"
-                                style="@style/Widget.Material3.Button.OutlinedButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="0dp"
-                                android:paddingHorizontal="16dp"
-                                android:text="@string/ar"
-                                android:textColor="?attr/colorPrimary"
-                                android:textSize="12sp"
-                                app:strokeColor="?attr/colorPrimary" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/account_actions"
+                android:textColor="?attr/colorError" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/TextAppearance.FoodPlanner.LabelLarge"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="60dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/log_out"
-                android:textColor="@color/error_red"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:backgroundTint="?attr/colorSurfaceVariant"
+                app:cornerRadius="20dp"
                 app:icon="@drawable/ic_logout"
-                app:iconTint="@color/error_red" />
+                app:iconTint="?attr/colorOnSurfaceVariant" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteAccount"
+                style="@style/TextAppearance.FoodPlanner.LabelLarge"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/delete_account"
+                android:textColor="?attr/colorOnError"
+                app:backgroundTint="?attr/colorError"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_delete"
+                app:iconTint="@null" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

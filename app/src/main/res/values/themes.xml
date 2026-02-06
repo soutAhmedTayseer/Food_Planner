@@ -31,6 +31,12 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="CalendarTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorAccent">@color/md_theme_primary</item>
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+    </style>
+
     <style name="SettingsCard" parent="Widget.Material3.CardView.Filled">
         <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
         <item name="cardCornerRadius">24dp</item>
@@ -48,6 +54,10 @@
         <item name="boxStrokeColor">?attr/colorPrimary</item>
         <item name="boxBackgroundColor">?attr/colorSurface</item>
         <item name="hintTextColor">?attr/colorSecondary</item>
+    </style>
+
+    <style name="CalendarWeekDayText" parent="TextAppearance.FoodPlanner.LabelLarge">
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
 </resources>
