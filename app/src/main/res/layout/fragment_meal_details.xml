@@ -10,7 +10,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="320dp"
         android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
         android:background="?android:attr/windowBackground">
 
@@ -20,6 +20,8 @@
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
             app:statusBarScrim="?attr/colorPrimary"
+            app:expandedTitleMarginBottom="28dp"
+            app:expandedTitleMarginStart="24dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
             <ImageView
@@ -33,9 +35,9 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="@drawable/gradient_black_transparent"
-                android:layout_gravity="bottom"/>
+                android:layout_height="120dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/gradient_black_transparent" />
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -51,39 +53,56 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/bg_rounded_top_sheet"
+        android:layout_marginTop="-24dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:paddingHorizontal="24dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="100dp">
 
             <TextView
                 android:id="@+id/tvMealName"
-                android:layout_width="wrap_content"
+                style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/meal_name"
-                style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
-                android:textColor="?attr/colorOnBackground"
-                android:layout_marginBottom="8dp"/>
+                android:textColor="?attr/colorOnBackground" />
 
-            <TextView
-                android:id="@+id/tvMealArea"
-                android:layout_width="wrap_content"
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/area_category"
-                style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
-                android:textColor="?attr/colorSecondary"
-                android:layout_marginBottom="32dp"/>
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipArea"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipIcon="@drawable/ic_public"
+                    tools:text="Italian"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipIcon="@drawable/ic_restaurant"
+                    tools:text="Seafood"/>
+            </com.google.android.material.chip.ChipGroup>
 
             <TextView
+                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ingredients"
-                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
-                android:textColor="?attr/colorOnSurface"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:textColor="?attr/colorOnSurface" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvIngredients"
@@ -91,79 +110,73 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:nestedScrollingEnabled="false"
-                android:clipToPadding="false"
-                android:layout_marginBottom="32dp"/>
+                android:clipToPadding="false" />
 
             <TextView
+                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/instructions"
-                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
-                android:textColor="?attr/colorOnSurface"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/tvInstructions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/step_1_nstep_2"
-                style="@style/TextAppearance.FoodPlanner.BodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:lineSpacingExtra="8dp"
-                android:layout_marginBottom="32dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/video_tutorial"
-                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
-                android:textColor="?attr/colorOnSurface"
-                android:layout_marginBottom="16dp"/>
+                android:text="Watch Tutorial"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
+                android:textColor="?attr/colorOnSurface" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp"
-                android:layout_marginBottom="48dp">
+                app:cardElevation="4dp">
 
                 <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
                     android:id="@+id/youtube_player_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
-
             </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/instructions"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
+                android:textColor="?attr/colorOnSurface" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvInstructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_instruction_step"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabCalendar"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_calendar"
-        android:contentDescription="@string/add_to_calendar"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnSecondary"
-        app:elevation="6dp"
-        app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|start"/>
+        android:orientation="vertical"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabFavorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_favorite_border"
-        android:contentDescription="@string/favorites"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnPrimary"
-        app:elevation="6dp"
-        app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|end"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCalendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_calendar"
+            app:backgroundTint="?attr/colorSurface"
+            app:tint="?attr/colorPrimary"
+            app:elevation="6dp"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_favorite_border"
+            app:backgroundTint="?attr/colorPrimary"
+            app:tint="?attr/colorOnPrimary"
+            app:elevation="6dp"/>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
