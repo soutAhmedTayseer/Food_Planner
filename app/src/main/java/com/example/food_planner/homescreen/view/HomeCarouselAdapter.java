@@ -1,0 +1,89 @@
+package com.example.food_planner.homescreen.view;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.example.food_planner.R;
+import com.example.food_planner.model.MealDetail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapter.ViewHolder> {
+
+    private List<MealDetail> meals = new ArrayList<>();
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onMealClick(MealDetail meal);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setList(List<MealDetail> meals) {
+        this.meals = meals;
+        notifyDataSetChanged();
+    }
+
+    // Helper for auto-scroll to get actual size
+    public int getActualItemCount() {
+        return meals.size();
+    }
+
+    // Allows infinite scrolling illusion (optional, but good for auto-scroll)
+    @Override
+    public int getItemCount() {
+        return meals.size() > 0 ? Integer.MAX_VALUE : 0;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_carousel, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // Modulo for infinite scrolling
+        int actualPosition = position % meals.size();
+        MealDetail meal = meals.get(actualPosition);
+
+        holder.tvName.setText(meal.getName());
+        holder.tvCategory.setText(meal.getCategory());
+
+        Glide.with(holder.itemView.getContext())
+                .load(meal.getThumbUrl())
+                .transform(new CenterCrop())
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(holder.ivThumb);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onMealClick(meal);
+            }
+        });
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivThumb;
+        TextView tvName, tvCategory;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivThumb = itemView.findViewById(R.id.ivCarouselThumb);
+            tvName = itemView.findViewById(R.id.tvCarouselName);
+            tvCategory = itemView.findViewById(R.id.tvCarouselCategory);
+        }
+    }
+}

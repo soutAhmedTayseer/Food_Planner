@@ -35,53 +35,64 @@
             />
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupSearch"
+    <HorizontalScrollView
+        android:id="@+id/hsvChips"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:animateLayoutChanges="true"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        app:chipSpacingHorizontal="8dp"
+        android:scrollbars="none"
+        android:clipToPadding="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardSearch">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipCategory"
-            style="@style/Widget.Material3.Chip.Filter"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/categories"
-            android:textColor="?attr/colorOnSurface"
-            app:chipBackgroundColor="@color/brand_surface"
-            app:chipStrokeColor="@color/brand_primary"
-            app:checkedIconVisible="true" />
+            android:paddingHorizontal="4dp"
+            app:singleLine="true"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="8dp">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipCountry"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/countries"
-            android:textColor="?attr/colorOnSurface"
-            app:chipBackgroundColor="@color/brand_surface"
-            app:chipStrokeColor="@color/brand_primary"
-            app:checkedIconVisible="true" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCategory"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/categories"
+                android:textColor="?attr/colorOnSurface"
+                app:chipBackgroundColor="@color/brand_surface"
+                app:chipStrokeColor="@color/brand_primary"
+                app:checkedIconVisible="true" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipIngredient"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredients"
-            android:textColor="?attr/colorOnSurface"
-            app:chipBackgroundColor="@color/brand_surface"
-            app:chipStrokeColor="@color/brand_primary"
-            app:checkedIconVisible="true" />
-    </com.google.android.material.chip.ChipGroup>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCountry"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/countries"
+                android:textColor="?attr/colorOnSurface"
+                app:chipBackgroundColor="@color/brand_surface"
+                app:chipStrokeColor="@color/brand_primary"
+                app:checkedIconVisible="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipIngredient"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ingredients"
+                android:textColor="?attr/colorOnSurface"
+                app:chipBackgroundColor="@color/brand_surface"
+                app:chipStrokeColor="@color/brand_primary"
+                app:checkedIconVisible="true" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSearch"
@@ -93,7 +104,7 @@
         android:scrollbars="vertical"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="2"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupSearch"
+        app:layout_constraintTop_toBottomOf="@id/hsvChips"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_search_category"/>
 
@@ -105,7 +116,7 @@
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupSearch"
+        app:layout_constraintTop_toBottomOf="@id/hsvChips"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
