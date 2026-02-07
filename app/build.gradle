@@ -78,5 +78,11 @@ dependencies {
     // Youtube Player
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:13.0.0'
 
+    //Shimmer Loading
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    //Swipe-to-Refresh
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
 
 }
