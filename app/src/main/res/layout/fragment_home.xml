@@ -1,168 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:attr/windowBackground"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="48dp">
+        android:layout_height="match_parent"
+        android:background="?android:attr/windowBackground">
 
-        <TextView
-            android:id="@+id/tvGreeting"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="24dp"
-            android:text="@string/hi_foodie"
-            style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
-            android:textColor="?attr/colorPrimary"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvSubtitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/what_would_you_like_to_cook_today"
-            style="@style/TextAppearance.FoodPlanner.BodyLarge"
-            android:textColor="@color/brand_secondary"
-            app:layout_constraintStart_toStartOf="@id/tvGreeting"
-            app:layout_constraintEnd_toEndOf="@id/tvGreeting"
-            app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
-
-        <TextView
-            android:id="@+id/tvDailyHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/meal_of_the_day"
-            style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
-            android:textColor="@color/brand_primary"
-            app:layout_constraintStart_toStartOf="@id/tvGreeting"
-            app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardMealOfDay"
-            android:layout_width="0dp"
-            android:layout_height="250dp"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="6dp"
-            app:strokeWidth="0dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintStart_toStartOf="@id/tvGreeting"
-            app:layout_constraintEnd_toEndOf="@id/tvGreeting"
-            app:layout_constraintTop_toBottomOf="@id/tvDailyHeader">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layout_card_front"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="?attr/colorPrimary">
-
-                    <ImageView
-                        android:id="@+id/ivMystery"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:src="@drawable/ic_mystry"
-                        app:tint="?attr/colorOnPrimary"
-                        app:layout_constraintBottom_toTopOf="@id/tvTapToReveal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_chainStyle="packed" />
-
-                    <TextView
-                        android:id="@+id/tvTapToReveal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/tap_to_reveal"
-                        style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
-                        android:textColor="?attr/colorOnPrimary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/ivMystery" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layout_card_back"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:id="@+id/ivDailyMeal"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_launcher_background"
-                        android:contentDescription="@string/meal_of_the_day" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:background="@drawable/gradient_black_transparent"
-                        app:layout_constraintHeight_percent="0.5"
-                        app:layout_constraintBottom_toBottomOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvDailyMealName"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        android:text="@string/loading_meal"
-                        style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
-                        android:textColor="@android:color/white"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:id="@+id/tvCarouselHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Daily Inspiration"
-            style="@style/TextAppearance.FoodPlanner.HeadlineMedium"
-            android:textColor="@color/brand_primary"
-            app:layout_constraintStart_toStartOf="@id/tvGreeting"
-            app:layout_constraintTop_toBottomOf="@id/cardMealOfDay" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCarousel"
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:clipToPadding="false"
-            android:paddingStart="24dp"
-            android:paddingEnd="8dp"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/tvCarouselHeader"
-            tools:listitem="@layout/item_home_carousel"/>
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:shimmer_auto_start="true">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+            <include layout="@layout/placeholder_home" />
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="48dp">
+
+                <TextView
+                    android:id="@+id/tvGreeting"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineLarge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="24dp"
+                    android:text="@string/hi_foodie"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle"
+                    style="@style/TextAppearance.FoodPlanner.BodyMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/what_would_you_like_to_cook_today"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    app:layout_constraintEnd_toEndOf="@id/tvGreeting"
+                    app:layout_constraintStart_toStartOf="@id/tvGreeting"
+                    app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
+
+                <TextView
+                    android:id="@+id/tvDailyHeader"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/meal_of_the_day"
+                    android:textColor="?attr/colorOnSurface"
+                    app:layout_constraintStart_toStartOf="@id/tvGreeting"
+                    app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMealOfDay"
+                    android:layout_width="0dp"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintEnd_toEndOf="@id/tvGreeting"
+                    app:layout_constraintStart_toStartOf="@id/tvGreeting"
+                    app:layout_constraintTop_toBottomOf="@id/tvDailyHeader">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layout_card_front"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/brand_primary">
+
+                            <ImageView
+                                android:id="@+id/ivMystery"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:src="@drawable/ic_mystry"
+                                app:layout_constraintBottom_toTopOf="@id/tvTapToReveal"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_chainStyle="packed"
+                                app:tint="@android:color/white" />
+
+                            <TextView
+                                android:id="@+id/tvTapToReveal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:text="@string/tap_to_reveal"
+                                android:textColor="@android:color/white"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/ivMystery" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layout_card_back"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/ivDailyMeal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/meal_of_the_day"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_launcher_background" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:background="@drawable/gradient_black_transparent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintHeight_percent="0.5" />
+
+                            <TextView
+                                android:id="@+id/tvDailyMealName"
+                                style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="16dp"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@string/loading_meal"
+                                android:textColor="@android:color/white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tvCarouselHeader"
+                    style="@style/TextAppearance.FoodPlanner.HeadlineSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="Daily Inspiration"
+                    android:textColor="?attr/colorOnSurface"
+                    app:layout_constraintStart_toStartOf="@id/tvGreeting"
+                    app:layout_constraintTop_toBottomOf="@id/cardMealOfDay" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCarousel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvCarouselHeader"
+                    tools:listitem="@layout/item_home_carousel" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
