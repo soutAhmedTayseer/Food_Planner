@@ -35,15 +35,14 @@ public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapte
         notifyDataSetChanged();
     }
 
-    // Helper for auto-scroll to get actual size
     public int getActualItemCount() {
         return meals.size();
     }
 
-    // Allows infinite scrolling illusion (optional, but good for auto-scroll)
+    // FIX 1: Return actual size, not MAX_VALUE to prevent OOM Error
     @Override
     public int getItemCount() {
-        return meals.size() > 0 ? Integer.MAX_VALUE : 0;
+        return meals.size();
     }
 
     @NonNull
@@ -55,9 +54,8 @@ public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Modulo for infinite scrolling
-        int actualPosition = position % meals.size();
-        MealDetail meal = meals.get(actualPosition);
+        // FIX 2: No need for modulo % anymore
+        MealDetail meal = meals.get(position);
 
         holder.tvName.setText(meal.getName());
         holder.tvCategory.setText(meal.getCategory());

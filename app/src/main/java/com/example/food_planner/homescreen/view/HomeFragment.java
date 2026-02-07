@@ -1,5 +1,8 @@
 package com.example.food_planner.homescreen.view;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,10 +16,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
@@ -24,10 +28,16 @@ import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 import com.example.food_planner.utils.SharedPrefManager;
+import com.example.food_planner.utils.SnackbarUtil;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.carousel.CarouselLayoutManager;
+import com.google.android.material.carousel.CarouselSnapHelper;
+import com.google.android.material.carousel.HeroCarouselStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -38,7 +48,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    // UI Components
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ShimmerFrameLayout shimmerFrameLayout;
+    private NestedScrollView contentLayout;
     private ImageView ivDailyMeal;
     private TextView tvDailyMealName;
     private MaterialCardView cardMealOfDay;
@@ -46,26 +58,39 @@ public class HomeFragment extends Fragment {
     private View layoutCardBack;
     private RecyclerView rvCarousel;
 
-    // Data / Network
     private FoodApi foodApi;
     private final CompositeDisposable disposable = new CompositeDisposable();
     private MealDetail currentMeal;
     private SharedPrefManager sharedPrefManager;
     private HomeCarouselAdapter carouselAdapter;
+    private CarouselSnapHelper snapHelper;
 
-    // Auto Scroll Logic
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private static final long SCROLL_DELAY = 4000;
+
     private Runnable sliderRunnable = new Runnable() {
         @Override
         public void run() {
-            if (rvCarousel != null && carouselAdapter != null && carouselAdapter.getActualItemCount() > 0) {
-                LinearLayoutManager layoutManager = (LinearLayoutManager) rvCarousel.getLayoutManager();
-                if (layoutManager != null) {
-                    int currentPosition = layoutManager.findFirstVisibleItemPosition();
-                    rvCarousel.smoothScrollToPosition(currentPosition + 1);
+            if (rvCarousel != null && carouselAdapter != null && carouselAdapter.getItemCount() > 0) {
+                RecyclerView.LayoutManager layoutManager = rvCarousel.getLayoutManager();
+                if (layoutManager != null && snapHelper != null) {
+                    View snapView = snapHelper.findSnapView(layoutManager);
+                    int currentPosition = 0;
+                    if (snapView != null) {
+                        currentPosition = layoutManager.getPosition(snapView);
+                    }
+
+                    int nextPosition = currentPosition + 1;
+
+                    // FIX: Loop back to 0 if we reached the end
+                    if (nextPosition >= carouselAdapter.getItemCount()) {
+                        nextPosition = 0;
+                        rvCarousel.scrollToPosition(nextPosition); // Instant jump to start
+                    } else {
+                        rvCarousel.smoothScrollToPosition(nextPosition); // Smooth scroll to next
+                    }
                 }
-                // Schedule next scroll in 4 seconds
-                sliderHandler.postDelayed(this, 4000);
+                sliderHandler.postDelayed(this, SCROLL_DELAY);
             }
         }
     };
@@ -79,26 +104,23 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         initViews(view);
         setupApi();
         setupCarousel();
-
-        // 1. Daily Meal Logic
-        checkDailyMealStatus();
-
-        // 2. Random Carousel Logic
-        fetchRandomInspirationMeals();
+        loadData(true);
+        swipeRefreshLayout.setOnRefreshListener(() -> loadData(false));
     }
 
     private void initViews(View view) {
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
+        shimmerFrameLayout = view.findViewById(R.id.shimmerLayout);
+        contentLayout = view.findViewById(R.id.contentLayout);
         ivDailyMeal = view.findViewById(R.id.ivDailyMeal);
         tvDailyMealName = view.findViewById(R.id.tvDailyMealName);
         cardMealOfDay = view.findViewById(R.id.cardMealOfDay);
         layoutCardFront = view.findViewById(R.id.layout_card_front);
         layoutCardBack = view.findViewById(R.id.layout_card_back);
         rvCarousel = view.findViewById(R.id.rvCarousel);
-
         sharedPrefManager = new SharedPrefManager(requireContext());
     }
 
@@ -108,24 +130,39 @@ public class HomeFragment extends Fragment {
 
     private void setupCarousel() {
         carouselAdapter = new HomeCarouselAdapter();
-        rvCarousel.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rvCarousel.setAdapter(carouselAdapter);
+        // Use Hero Strategy for the center-zoom effect
+        CarouselLayoutManager layoutManager = new CarouselLayoutManager(new HeroCarouselStrategy());
+        rvCarousel.setLayoutManager(layoutManager);
 
-        // Click Listener for Carousel Items
-        carouselAdapter.setOnItemClickListener(meal -> {
-            navigateToDetails(meal);
-        });
+        snapHelper = new CarouselSnapHelper();
+        snapHelper.attachToRecyclerView(rvCarousel);
+
+        rvCarousel.setAdapter(carouselAdapter);
+        rvCarousel.setClipChildren(false);
+        rvCarousel.setClipToPadding(false);
+
+        carouselAdapter.setOnItemClickListener(this::navigateToDetails);
     }
 
-    /**
-     * Fetches 10 Random meals in Parallel using RxJava
-     */
-    private void fetchRandomInspirationMeals() {
-        // Create a range of 10 emissions
+    private void loadData(boolean isInitialLoad) {
+        if (!isNetworkAvailable()) {
+            swipeRefreshLayout.setRefreshing(false);
+            if (isInitialLoad && carouselAdapter.getItemCount() == 0) {
+                showContent(true);
+            }
+            SnackbarUtil.showError(getView(), "No Internet Connection");
+            checkDailyMealStatus();
+            return;
+        }
+
+        if (isInitialLoad) showShimmer(true);
+        disposable.clear();
+        checkDailyMealStatus();
+
         disposable.add(Observable.range(0, 10)
-                .flatMapSingle(i -> foodApi.getRandomMeal()
-                        .subscribeOn(Schedulers.io())) // Fetch each in background
-                .toList() // Collect all results into a single List
+                .flatMapSingle(i -> foodApi.getRandomMeal().subscribeOn(Schedulers.io()))
+                .toList()
+                .delay(isInitialLoad ? 1500 : 0, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(responses -> {
                     List<MealDetail> carouselMeals = new ArrayList<>();
@@ -134,34 +171,23 @@ public class HomeFragment extends Fragment {
                             carouselMeals.add(response.getMeals().get(0));
                         }
                     }
-                    // Update Adapter
                     carouselAdapter.setList(carouselMeals);
+                    if (!carouselMeals.isEmpty()) startAutoScroll();
 
-                    // Start Auto Scroll only if we have data
-                    if (!carouselMeals.isEmpty()) {
-                        // Start slightly offset to look better
-                        rvCarousel.scrollToPosition(carouselMeals.size() * 100);
-                        sliderHandler.removeCallbacks(sliderRunnable);
-                        sliderHandler.postDelayed(sliderRunnable, 3000);
-                    }
-
-                }, error -> Log.e(TAG, "Carousel Error: " + error.getMessage())));
+                    showShimmer(false);
+                    swipeRefreshLayout.setRefreshing(false);
+                }, error -> {
+                    showShimmer(false);
+                    swipeRefreshLayout.setRefreshing(false);
+                    SnackbarUtil.showError(getView(), "Failed to refresh data");
+                }));
     }
-
-    // --- Daily Meal Logic ---
 
     private void checkDailyMealStatus() {
         MealDetail savedMeal = sharedPrefManager.getValidDailyMeal();
-
         if (savedMeal != null) {
             currentMeal = savedMeal;
-            tvDailyMealName.setText(currentMeal.getName());
-            Glide.with(this).load(currentMeal.getThumbUrl())
-                    .placeholder(R.drawable.ic_launcher_background).into(ivDailyMeal);
-
-            layoutCardFront.setVisibility(View.GONE);
-            layoutCardBack.setVisibility(View.VISIBLE);
-            cardMealOfDay.setOnClickListener(v -> navigateToDetails(currentMeal));
+            updateDailyMealUI();
         } else {
             showMysteryState();
         }
@@ -174,36 +200,69 @@ public class HomeFragment extends Fragment {
     }
 
     private void fetchAndFlip() {
+        if (!isNetworkAvailable()) {
+            SnackbarUtil.showError(getView(), "No Internet Connection");
+            return;
+        }
         cardMealOfDay.setClickable(false);
+        disposable.add(foodApi.getRandomMeal()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response.getMeals() != null && !response.getMeals().isEmpty()) {
+                        currentMeal = response.getMeals().get(0);
+                        sharedPrefManager.saveDailyMeal(currentMeal);
+                        updateDailyMealUI();
+                        performFlipAnimation();
+                    } else {
+                        cardMealOfDay.setClickable(true);
+                    }
+                }, error -> {
+                    SnackbarUtil.showError(getView(), "Failed to reveal meal");
+                    cardMealOfDay.setClickable(true);
+                }));
+    }
 
-        disposable.add(foodApi.getRandomMeal().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
-            if (response.getMeals() != null && !response.getMeals().isEmpty()) {
-                currentMeal = response.getMeals().get(0);
-                sharedPrefManager.saveDailyMeal(currentMeal);
+    private void updateDailyMealUI() {
+        tvDailyMealName.setText(currentMeal.getName());
+        Glide.with(this).load(currentMeal.getThumbUrl())
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(ivDailyMeal);
+        layoutCardFront.setVisibility(View.GONE);
+        layoutCardBack.setVisibility(View.VISIBLE);
+        cardMealOfDay.setOnClickListener(v -> navigateToDetails(currentMeal));
+    }
 
-                tvDailyMealName.setText(currentMeal.getName());
-                Glide.with(this).load(currentMeal.getThumbUrl()).into(ivDailyMeal);
+    private void showShimmer(boolean show) {
+        if (show) {
+            shimmerFrameLayout.startShimmer();
+            shimmerFrameLayout.setVisibility(View.VISIBLE);
+            contentLayout.setVisibility(View.GONE);
+        } else {
+            shimmerFrameLayout.stopShimmer();
+            shimmerFrameLayout.setVisibility(View.GONE);
+            contentLayout.setVisibility(View.VISIBLE);
+        }
+    }
 
-                performFlipAnimation();
-            } else {
-                showError(getString(R.string.failed_to_load_daily_meal));
-                cardMealOfDay.setClickable(true);
-            }
-        }, error -> {
-            showError(getString(R.string.error) + " " + error.getMessage());
-            cardMealOfDay.setClickable(true);
-        }));
+    private void showContent(boolean show) {
+        contentLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        shimmerFrameLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     private void performFlipAnimation() {
         final float scale = requireContext().getResources().getDisplayMetrics().density;
         cardMealOfDay.setCameraDistance(8000 * scale);
-
         layoutCardFront.animate().withLayer().rotationY(90).setDuration(300).withEndAction(() -> {
             layoutCardFront.setVisibility(View.GONE);
             layoutCardBack.setVisibility(View.VISIBLE);
             layoutCardBack.setRotationY(-90);
-
             layoutCardBack.animate().withLayer().rotationY(0).setDuration(300).withEndAction(() -> {
                 cardMealOfDay.setClickable(true);
                 cardMealOfDay.setOnClickListener(v -> navigateToDetails(currentMeal));
@@ -218,24 +277,23 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void showError(String message) {
-        if (getContext() != null) {
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        }
+    private void startAutoScroll() {
+        sliderHandler.removeCallbacks(sliderRunnable);
+        sliderHandler.postDelayed(sliderRunnable, SCROLL_DELAY);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        // Pause auto-scroll when fragment is not visible
         sliderHandler.removeCallbacks(sliderRunnable);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Resume auto-scroll
-        sliderHandler.postDelayed(sliderRunnable, 1000);
+        if (carouselAdapter != null && carouselAdapter.getItemCount() > 0) {
+            startAutoScroll();
+        }
     }
 
     @Override
