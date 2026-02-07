@@ -3,6 +3,8 @@ package com.example.food_planner.searchscreen.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,6 +13,8 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealItem;
 
@@ -20,25 +24,21 @@ import java.util.List;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
     private List<MealItem> items = new ArrayList<>();
+    private OnItemClickListener listener;
+    private int lastPosition = -1; // For animation state
 
-    // --- 1. Define the Listener Interface ---
     public interface OnItemClickListener {
-        void onItemClick(String itemName, ImageView sharedImageView); // Add ImageView param
+        void onItemClick(String itemName, ImageView sharedImageView);
     }
 
-    private OnItemClickListener listener;
-
-    // --- 2. Create the Setter Method (THIS FIXES YOUR ERROR) ---
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
     public void setList(List<MealItem> newItems) {
-        if (newItems == null) {
-            this.items = new ArrayList<>();
-        } else {
-            this.items = newItems;
-        }
+        this.items = (newItems != null) ? newItems : new ArrayList<>();
+        // Reset animation when list changes significantly (optional, depends on preference)
+        // lastPosition = -1;
         notifyDataSetChanged();
     }
 
@@ -52,24 +52,51 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MealItem item = items.get(position);
-        holder.name.setText(item.getName());
+        holder.tvName.setText(item.getName());
 
         String url = item.getThumbnailUrl();
-        if (url != null) {
-            Glide.with(holder.itemView.getContext()).load(url).placeholder(R.drawable.ic_launcher_foreground).into(holder.image);
-        } else {
-            holder.image.setImageResource(R.drawable.ic_launcher_foreground);
-        }
 
-        // --- 3. Trigger the Listener on Click ---
+        // Using Glide with transformations for better card visuals
+        Glide.with(holder.itemView.getContext())
+                .load(url)
+                .transform(new CenterCrop(), new RoundedCorners(24)) // 24px radius matches modern UI
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_foreground)
+                .into(holder.ivThumb);
+
+        // --- Shared Element Transition Name ---
+        ViewCompat.setTransitionName(holder.ivThumb, item.getName());
+
+        // --- Satisfying Entrance Animation ---
+        setAnimation(holder.itemView, position);
+
         holder.itemView.setOnClickListener(v -> {
-            // Unique transition name for every item is REQUIRED
-            ViewCompat.setTransitionName(holder.image, item.getName());
-
             if (listener != null) {
-                listener.onItemClick(item.getName(), holder.image);
+                listener.onItemClick(item.getName(), holder.ivThumb);
             }
         });
+    }
+
+    /**
+     * Applies a slide-in and fade-in animation to the view.
+     */
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            // We create the animation programmatically to ensure it works without extra XML files
+            viewToAnimate.setAlpha(0f);
+            viewToAnimate.setTranslationY(100f); // Start slightly below
+
+            viewToAnimate.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(400) // Duration of animation
+                    .setStartDelay(position * 50L) // Staggered effect (cascading)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
+
+            lastPosition = position;
+        }
     }
 
     @Override
@@ -78,13 +105,13 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
-        ImageView image;
+        TextView tvName;
+        ImageView ivThumb;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.tvCategoryName);
-            image = itemView.findViewById(R.id.ivCategoryThumb);
+            tvName = itemView.findViewById(R.id.tvCategoryName);
+            ivThumb = itemView.findViewById(R.id.ivCategoryThumb);
         }
     }
 }

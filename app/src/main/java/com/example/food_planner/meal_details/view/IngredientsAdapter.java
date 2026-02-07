@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
-import com.example.food_planner.model.MealDetail; // Ensure this imports your model correctly
+import com.example.food_planner.model.MealDetail;
 import java.util.ArrayList;
 import java.util.List;
 
