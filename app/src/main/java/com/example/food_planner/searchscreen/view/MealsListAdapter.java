@@ -7,9 +7,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealItem;
 
@@ -20,9 +23,10 @@ public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.View
 
     private List<MealItem> meals = new ArrayList<>();
     private OnItemClickListener listener;
+    private int lastPosition = -1; // Track animation state
 
     public interface OnItemClickListener {
-        void onMealClick(String mealId); // Pass ID to fetch full details later
+        void onMealClick(String mealId, ImageView sharedImageView);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -37,7 +41,6 @@ public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Reusing your existing item layout is fine
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_search_category, parent, false);
         return new ViewHolder(view);
     }
@@ -48,17 +51,46 @@ public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.View
 
         holder.tvName.setText(meal.getName());
 
+        // Apply Glide with Rounded Corners for better UI
         Glide.with(holder.itemView.getContext())
                 .load(meal.getThumbnailUrl())
+                .transform(new CenterCrop(), new RoundedCorners(24))
                 .placeholder(R.drawable.ic_launcher_background)
+                .error(R.drawable.ic_launcher_background)
                 .into(holder.ivThumb);
+
+        // Set Transition Name for Shared Element Animation
+        ViewCompat.setTransitionName(holder.ivThumb, meal.getName());
+
+        // Apply the entrance animation
+        setAnimation(holder.itemView, position);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                // The API for lists usually returns "idMeal" in the object
-                listener.onMealClick(meal.getId());
+                // Pass the image view for transition
+                listener.onMealClick(meal.getId(), holder.ivThumb);
             }
         });
+    }
+
+    /**
+     * Staggered Slide-Up Animation
+     */
+    private void setAnimation(View viewToAnimate, int position) {
+        if (position > lastPosition) {
+            viewToAnimate.setAlpha(0f);
+            viewToAnimate.setTranslationY(100f);
+
+            viewToAnimate.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(400)
+                    .setStartDelay(position * 50L)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
+
+            lastPosition = position;
+        }
     }
 
     @Override
