@@ -22,7 +22,7 @@ import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.planscreen.presenter.PlanPresenter;
 import com.example.food_planner.planscreen.presenter.PlanPresenterImpl;
-import com.example.food_planner.signin.LoginActivity;
+import com.example.food_planner.signin.view.LoginActivity;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;

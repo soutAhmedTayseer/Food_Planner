@@ -20,7 +20,7 @@ import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.favoritescreen.presenter.FavoritesPresenter;
 import com.example.food_planner.favoritescreen.presenter.FavoritesPresenterImpl;
 import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.signin.LoginActivity;
+import com.example.food_planner.signin.view.LoginActivity;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SharedPrefManager;
 

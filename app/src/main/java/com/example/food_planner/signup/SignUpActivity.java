@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.food_planner.R;
 import com.example.food_planner.data.repository.UserRepository;
 import com.example.food_planner.homescreen.view.HomeActivity;
-import com.example.food_planner.signin.LoginActivity;
+import com.example.food_planner.signin.view.LoginActivity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
