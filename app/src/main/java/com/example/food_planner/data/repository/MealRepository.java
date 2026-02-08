@@ -45,7 +45,7 @@ public class MealRepository {
         return uid.isEmpty() ? "guest" : uid;
     }
 
-    // --- DAILY MEAL (HOME SCREEN SUPPORT) ---
+    // --- DAILY MEAL ---
     public MealDetail getValidDailyMeal() {
         return sharedPrefManager.getValidDailyMeal();
     }
@@ -54,7 +54,7 @@ public class MealRepository {
         sharedPrefManager.saveDailyMeal(meal);
     }
 
-    // --- REMOTE CALLS ---
+    // --- REMOTE CALLS (General) ---
     public Single<MealResponse> getRandomMeal() {
         return remoteDataSource.getRandomMeal();
     }
@@ -69,6 +69,23 @@ public class MealRepository {
 
     public Single<Meal> getIngredients() {
         return remoteDataSource.getIngredients();
+    }
+
+    // --- MEALS LIST CALLS (Missing methods added here) ---
+    public Single<Meal> filterByCategory(String category) {
+        return remoteDataSource.filterByCategory(category);
+    }
+
+    public Single<Meal> filterByArea(String area) {
+        return remoteDataSource.filterByArea(area);
+    }
+
+    public Single<Meal> filterByIngredient(String ingredient) {
+        return remoteDataSource.filterByIngredient(ingredient);
+    }
+
+    public Single<MealResponse> getMealById(String mealId) {
+        return remoteDataSource.getMealById(mealId);
     }
 
     // --- FAVORITES ---
