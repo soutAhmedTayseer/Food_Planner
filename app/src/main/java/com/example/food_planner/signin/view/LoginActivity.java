@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -16,7 +14,7 @@ import com.example.food_planner.data.repository.UserRepository;
 import com.example.food_planner.homescreen.view.HomeActivity;
 import com.example.food_planner.signin.presenter.LoginPresenter;
 import com.example.food_planner.signin.presenter.LoginPresenterImpl;
-import com.example.food_planner.signup.SignUpActivity;
+import com.example.food_planner.signup.view.SignupActivity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -102,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     }
 
     @Override
-    public void navigateToSignUp() { startActivity(new Intent(this, SignUpActivity.class)); }
+    public void navigateToSignUp() { startActivity(new Intent(this, SignupActivity.class)); }
 
     @Override
     public void launchGoogleSignIn(Intent signInIntent) { googleSignInLauncher.launch(signInIntent); }

@@ -19,7 +19,7 @@ import com.example.food_planner.data.repository.UserRepository;
 import com.example.food_planner.homescreen.view.HomeActivity;
 import com.example.food_planner.signin.presenter.LoginPresenter;
 import com.example.food_planner.signin.presenter.LoginPresenterImpl;
-import com.example.food_planner.signup.SignUpActivity;
+import com.example.food_planner.signup.view.SignupActivity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -110,7 +110,8 @@ public class LoginFragment extends Fragment implements LoginView {
     }
 
     @Override
-    public void navigateToSignUp() { startActivity(new Intent(requireContext(), SignUpActivity.class)); }
+    
+    public void navigateToSignUp() { startActivity(new Intent(requireContext(), SignupActivity.class)); }
 
     @Override
     public void launchGoogleSignIn(Intent signInIntent) { googleSignInLauncher.launch(signInIntent); }
