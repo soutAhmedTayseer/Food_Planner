@@ -1,4 +1,4 @@
-package com.example.food_planner.favoritescreen.view;
+package com.example.food_planner.favoritescreen;
 
 import android.view.LayoutInflater;
 import android.view.View;

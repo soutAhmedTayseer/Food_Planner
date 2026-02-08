@@ -1,4 +1,4 @@
-package com.example.food_planner.searchscreen.view;
+package com.example.food_planner.mealslist;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,7 +20,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.MealItem;
-import com.example.food_planner.network.FoodApi;
+import com.example.food_planner.data.datasource.remote.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 
 import java.util.ArrayList;

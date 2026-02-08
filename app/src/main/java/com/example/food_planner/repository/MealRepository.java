@@ -2,9 +2,9 @@ package com.example.food_planner.repository;
 
 import android.content.Context;
 
-import com.example.food_planner.db.FoodPlannerDatabase;
-import com.example.food_planner.db.MealDao;
-import com.example.food_planner.db.PlanDao;
+import com.example.food_planner.data.datasource.local.MealDao;
+import com.example.food_planner.data.datasource.local.PlanDao;
+import com.example.food_planner.data.db.FoodPlannerDatabase;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.utils.SharedPrefManager;

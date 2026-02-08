@@ -1,4 +1,4 @@
-package com.example.food_planner.meal_details.view;
+package com.example.food_planner.meal_details;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -28,7 +28,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.Abs
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;

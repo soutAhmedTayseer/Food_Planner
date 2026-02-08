@@ -1,4 +1,4 @@
-package com.example.food_planner.favoritescreen.view;
+package com.example.food_planner.favoritescreen;
 
 import android.content.Intent;
 import android.os.Bundle;

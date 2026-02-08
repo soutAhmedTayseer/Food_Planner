@@ -1,4 +1,4 @@
-package com.example.food_planner.searchscreen.view;
+package com.example.food_planner.searchscreen;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,22 +19,24 @@ import com.example.food_planner.model.MealItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.ViewHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
-    private List<MealItem> meals = new ArrayList<>();
+    private List<MealItem> items = new ArrayList<>();
     private OnItemClickListener listener;
-    private int lastPosition = -1; // Track animation state
+    private int lastPosition = -1; // For animation state
 
     public interface OnItemClickListener {
-        void onMealClick(String mealId, ImageView sharedImageView);
+        void onItemClick(String itemName, ImageView sharedImageView);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void setList(List<MealItem> meals) {
-        this.meals = (meals != null) ? meals : new ArrayList<>();
+    public void setList(List<MealItem> newItems) {
+        this.items = (newItems != null) ? newItems : new ArrayList<>();
+        // Reset animation when list changes significantly (optional, depends on preference)
+        // lastPosition = -1;
         notifyDataSetChanged();
     }
 
@@ -47,45 +49,47 @@ public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MealItem meal = meals.get(position);
+        MealItem item = items.get(position);
+        holder.tvName.setText(item.getName());
 
-        holder.tvName.setText(meal.getName());
+        String url = item.getThumbnailUrl();
 
-        // Apply Glide with Rounded Corners for better UI
+        // Using Glide with transformations for better card visuals
         Glide.with(holder.itemView.getContext())
-                .load(meal.getThumbnailUrl())
-                .transform(new CenterCrop(), new RoundedCorners(24))
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background)
+                .load(url)
+                .transform(new CenterCrop(), new RoundedCorners(24)) // 24px radius matches modern UI
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_foreground)
                 .into(holder.ivThumb);
 
-        // Set Transition Name for Shared Element Animation
-        ViewCompat.setTransitionName(holder.ivThumb, meal.getName());
+        // --- Shared Element Transition Name ---
+        ViewCompat.setTransitionName(holder.ivThumb, item.getName());
 
-        // Apply the entrance animation
+        // --- Satisfying Entrance Animation ---
         setAnimation(holder.itemView, position);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                // Pass the image view for transition
-                listener.onMealClick(meal.getId(), holder.ivThumb);
+                listener.onItemClick(item.getName(), holder.ivThumb);
             }
         });
     }
 
     /**
-     * Staggered Slide-Up Animation
+     * Applies a slide-in and fade-in animation to the view.
      */
     private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
+            // We create the animation programmatically to ensure it works without extra XML files
             viewToAnimate.setAlpha(0f);
-            viewToAnimate.setTranslationY(100f);
+            viewToAnimate.setTranslationY(100f); // Start slightly below
 
             viewToAnimate.animate()
                     .alpha(1f)
                     .translationY(0f)
-                    .setDuration(400)
-                    .setStartDelay(position * 50L)
+                    .setDuration(400) // Duration of animation
+                    .setStartDelay(position * 50L) // Staggered effect (cascading)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator())
                     .start();
 
@@ -95,10 +99,10 @@ public class MealsListAdapter extends RecyclerView.Adapter<MealsListAdapter.View
 
     @Override
     public int getItemCount() {
-        return meals.size();
+        return items.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
         ImageView ivThumb;
 

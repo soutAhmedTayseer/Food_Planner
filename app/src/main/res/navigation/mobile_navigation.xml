@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.food_planner.homescreen.view.HomeFragment"
+        android:name="com.example.food_planner.homescreen.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/nav_search"
-        android:name="com.example.food_planner.searchscreen.view.SearchFragment"
+        android:name="com.example.food_planner.searchscreen.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
         <action
@@ -35,7 +35,7 @@
 
     <fragment
         android:id="@+id/mealsListFragment"
-        android:name="com.example.food_planner.searchscreen.view.MealsListFragment"
+        android:name="com.example.food_planner.mealslist.MealsListFragment"
         android:label="Meals List">
         <argument
             android:name="filterType"
@@ -54,7 +54,7 @@
 
     <fragment
         android:id="@+id/mealDetailsFragment"
-        android:name="com.example.food_planner.meal_details.view.MealDetailsFragment"
+        android:name="com.example.food_planner.meal_details.MealDetailsFragment"
         android:label="Meal Details"
         tools:layout="@layout/fragment_meal_details">
         <argument
@@ -64,7 +64,7 @@
 
     <fragment
         android:id="@+id/nav_favorites"
-        android:name="com.example.food_planner.favoritescreen.view.FavoritesFragment"
+        android:name="com.example.food_planner.favoritescreen.FavoritesFragment"
         android:label="Favorites"
         tools:layout="@layout/fragment_favorites">
         <action
@@ -78,7 +78,7 @@
 
     <fragment
         android:id="@+id/nav_plan"
-        android:name="com.example.food_planner.planscreen.view.WeeklyPlanFragment"
+        android:name="com.example.food_planner.planscreen.WeeklyPlanFragment"
         android:label="Plan"
         tools:layout="@layout/fragment_plan">
 

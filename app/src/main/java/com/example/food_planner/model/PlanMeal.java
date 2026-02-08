@@ -4,7 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.TypeConverters;
 
-import com.example.food_planner.db.Converters;
+
+import com.example.food_planner.data.db.Converters;
 
 import java.util.ArrayList;
 import java.util.List;

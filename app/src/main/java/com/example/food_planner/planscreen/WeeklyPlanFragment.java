@@ -1,4 +1,4 @@
-package com.example.food_planner.planscreen.view;
+package com.example.food_planner.planscreen;
 
 import android.content.Intent;
 import android.os.Bundle;

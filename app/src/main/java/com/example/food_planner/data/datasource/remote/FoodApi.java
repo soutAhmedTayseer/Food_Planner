@@ -1,8 +1,7 @@
-package com.example.food_planner.network;
+package com.example.food_planner.data.datasource.remote;
 
 import com.example.food_planner.model.Meal;
 import com.example.food_planner.model.MealResponse;
-
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

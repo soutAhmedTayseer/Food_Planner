@@ -1,12 +1,10 @@
-package com.example.food_planner.db;
+package com.example.food_planner.data.datasource.local;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
 import com.example.food_planner.model.UserEntity;
-
 import io.reactivex.rxjava3.core.Completable;
 
 @Dao
@@ -15,7 +13,7 @@ public interface UserDao {
     Completable insertUser(UserEntity user);
 
     @Query("SELECT * FROM user_table LIMIT 1")
-    UserEntity getUser(); // You can make this Single<UserEntity> for Rx
+    UserEntity getUser();
 
     @Query("DELETE FROM user_table")
     Completable clearUser();

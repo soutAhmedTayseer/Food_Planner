@@ -1,4 +1,4 @@
-package com.example.food_planner.db;
+package com.example.food_planner.data.db;
 
 import android.content.Context;
 
@@ -7,6 +7,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.example.food_planner.data.datasource.local.MealDao;
+import com.example.food_planner.data.datasource.local.PlanDao;
+import com.example.food_planner.data.datasource.local.UserDao;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.model.UserEntity;
@@ -28,7 +31,7 @@ public abstract class FoodPlannerDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FoodPlannerDatabase.class, "food_planner_db")
-                            .fallbackToDestructiveMigration() // Handles schema changes
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }
