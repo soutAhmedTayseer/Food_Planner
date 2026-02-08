@@ -6,7 +6,9 @@ import com.example.food_planner.data.datasource.local.LocalDataSource;
 import com.example.food_planner.data.datasource.local.LocalDataSourceImpl;
 import com.example.food_planner.data.datasource.remote.RemoteDataSource;
 import com.example.food_planner.data.datasource.remote.RemoteDataSourceImpl;
+import com.example.food_planner.model.Meal;
 import com.example.food_planner.model.MealDetail;
+import com.example.food_planner.model.MealResponse;
 import com.example.food_planner.model.PlanMeal;
 import com.example.food_planner.utils.SharedPrefManager;
 
@@ -38,13 +40,38 @@ public class MealRepository {
         this.sharedPrefManager = new SharedPrefManager(context);
     }
 
-    // Helper: Always get the current logged-in user ID
     private String getCurrentUserId() {
         String uid = sharedPrefManager.getUserUid();
         return uid.isEmpty() ? "guest" : uid;
     }
 
-    // --- FAVORITES (Delegating to LocalDataSource) ---
+    // --- DAILY MEAL (HOME SCREEN SUPPORT) ---
+    public MealDetail getValidDailyMeal() {
+        return sharedPrefManager.getValidDailyMeal();
+    }
+
+    public void saveDailyMeal(MealDetail meal) {
+        sharedPrefManager.saveDailyMeal(meal);
+    }
+
+    // --- REMOTE CALLS ---
+    public Single<MealResponse> getRandomMeal() {
+        return remoteDataSource.getRandomMeal();
+    }
+
+    public Single<Meal> getCategories() {
+        return remoteDataSource.getCategories();
+    }
+
+    public Single<Meal> getAreas() {
+        return remoteDataSource.getAreas();
+    }
+
+    public Single<Meal> getIngredients() {
+        return remoteDataSource.getIngredients();
+    }
+
+    // --- FAVORITES ---
     public Completable addToFavorites(MealDetail meal) {
         meal.setUserId(getCurrentUserId());
         return localDataSource.insertFav(meal).subscribeOn(Schedulers.io());
@@ -63,10 +90,8 @@ public class MealRepository {
         return localDataSource.isFav(mealId, getCurrentUserId()).subscribeOn(Schedulers.io());
     }
 
-    // --- CALENDAR / PLAN (Delegating to LocalDataSource) ---
-
+    // --- PLAN ---
     public Completable addToPlan(MealDetail meal, String date) {
-        // Convert MealDetail -> PlanMeal with the specific date
         PlanMeal planMeal = PlanMeal.fromMealDetail(meal, date, getCurrentUserId());
         return localDataSource.insertPlan(planMeal).subscribeOn(Schedulers.io());
     }
