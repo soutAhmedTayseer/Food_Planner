@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.food_planner.homescreen.HomeActivity;
+import com.example.food_planner.homescreen.view.HomeActivity;
 import com.example.food_planner.signin.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
