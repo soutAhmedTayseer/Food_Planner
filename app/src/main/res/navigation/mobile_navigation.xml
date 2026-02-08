@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/nav_search"
-        android:name="com.example.food_planner.searchscreen.SearchFragment"
+        android:name="com.example.food_planner.searchscreen.view.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
         <action
