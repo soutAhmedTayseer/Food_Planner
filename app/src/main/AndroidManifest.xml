@@ -21,7 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".signin.LoginActivity" android:exported="false"/>
+        <activity android:name=".signin.view.LoginActivity" android:exported="false"/>
         <activity android:name=".signup.SignUpActivity" android:exported="false"/>
         <activity android:name=".homescreen.view.HomeActivity" android:exported="false"/>
     </application>
