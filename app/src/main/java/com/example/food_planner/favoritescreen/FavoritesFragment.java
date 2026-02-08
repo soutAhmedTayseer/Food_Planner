@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food_planner.R;
-import com.example.food_planner.repository.MealRepository;
+import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.signin.LoginActivity;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SharedPrefManager;
@@ -88,8 +88,7 @@ public class FavoritesFragment extends Fragment {
             guestOverlay.setVisibility(View.GONE);
         }
 
-        mealRepository = new MealRepository(requireContext());
-
+        mealRepository = MealRepository.getInstance(requireContext());
         rvFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FavoritesAdapter();
         rvFavorites.setAdapter(adapter);

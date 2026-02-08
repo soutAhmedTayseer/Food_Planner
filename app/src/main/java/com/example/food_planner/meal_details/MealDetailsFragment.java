@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
+import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.repository.MealRepository;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.chip.Chip;
@@ -62,7 +62,7 @@ public class MealDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-        mealRepository = new MealRepository(requireContext());
+        mealRepository = MealRepository.getInstance(requireContext());
         getLifecycle().addObserver(youTubePlayerView);
 
         if (getArguments() != null) {
