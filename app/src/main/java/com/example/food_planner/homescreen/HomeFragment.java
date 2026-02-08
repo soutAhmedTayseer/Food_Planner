@@ -1,4 +1,4 @@
-package com.example.food_planner.homescreen.view;
+package com.example.food_planner.homescreen;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -6,13 +6,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
+import com.example.food_planner.homescreen.view.HomeFragmentDirections;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;

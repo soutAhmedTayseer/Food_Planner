@@ -1,4 +1,4 @@
-package com.example.food_planner.searchscreen.view;
+package com.example.food_planner.searchscreen;
 
 import android.os.Bundle;
 import android.util.Log;

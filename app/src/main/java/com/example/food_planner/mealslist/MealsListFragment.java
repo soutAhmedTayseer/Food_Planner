@@ -1,4 +1,4 @@
-package com.example.food_planner.searchscreen.view;
+package com.example.food_planner.mealslist;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +22,7 @@ import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.MealItem;
 import com.example.food_planner.network.FoodApi;
 import com.example.food_planner.network.NetworkClient;
+import com.example.food_planner.searchscreen.view.MealsListFragmentDirections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class MealsListFragment extends Fragment {
 
         // 1. Get Arguments
         if (getArguments() != null) {
-            MealsListFragmentArgs args = MealsListFragmentArgs.fromBundle(getArguments());
+            com.example.food_planner.searchscreen.view.MealsListFragmentArgs args = com.example.food_planner.searchscreen.view.MealsListFragmentArgs.fromBundle(getArguments());
             filterType = args.getFilterType();
             filterName = args.getFilterName();
         }
