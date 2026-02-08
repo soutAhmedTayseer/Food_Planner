@@ -22,9 +22,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.food_planner.R;
-import com.example.food_planner.homescreen.view.HomeFragmentDirections;
 import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.network.FoodApi;
+import com.example.food_planner.data.datasource.remote.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;

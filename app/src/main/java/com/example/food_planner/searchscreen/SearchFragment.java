@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealItem;
-import com.example.food_planner.network.FoodApi;
+import com.example.food_planner.data.datasource.remote.FoodApi;
 import com.example.food_planner.network.NetworkClient;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.chip.ChipGroup;

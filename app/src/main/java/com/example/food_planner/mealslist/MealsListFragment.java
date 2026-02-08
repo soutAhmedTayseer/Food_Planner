@@ -20,9 +20,8 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.food_planner.R;
 import com.example.food_planner.model.MealDetail;
 import com.example.food_planner.model.MealItem;
-import com.example.food_planner.network.FoodApi;
+import com.example.food_planner.data.datasource.remote.FoodApi;
 import com.example.food_planner.network.NetworkClient;
-import com.example.food_planner.searchscreen.view.MealsListFragmentDirections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class MealsListFragment extends Fragment {
 
         // 1. Get Arguments
         if (getArguments() != null) {
-            com.example.food_planner.searchscreen.view.MealsListFragmentArgs args = com.example.food_planner.searchscreen.view.MealsListFragmentArgs.fromBundle(getArguments());
+            MealsListFragmentArgs args = MealsListFragmentArgs.fromBundle(getArguments());
             filterType = args.getFilterType();
             filterName = args.getFilterName();
         }
