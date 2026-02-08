@@ -2,8 +2,8 @@ package com.example.food_planner.repository;
 
 import android.content.Context;
 
-import com.example.food_planner.db.FoodPlannerDatabase;
-import com.example.food_planner.db.UserDao;
+import com.example.food_planner.data.datasource.local.UserDao;
+import com.example.food_planner.data.db.FoodPlannerDatabase;
 import com.example.food_planner.model.UserEntity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.google.firebase.auth.AuthCredential;
