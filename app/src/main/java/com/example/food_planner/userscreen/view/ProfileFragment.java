@@ -20,37 +20,24 @@ import androidx.fragment.app.Fragment;
 
 import com.example.food_planner.R;
 import com.example.food_planner.data.repository.UserRepository;
-import com.example.food_planner.signin.LoginActivity;
+import com.example.food_planner.signin.view.LoginActivity;
+import com.example.food_planner.userscreen.presenter.ProfilePresenter;
+import com.example.food_planner.userscreen.presenter.ProfilePresenterImpl;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.example.food_planner.utils.SnackbarUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class ProfileFragment extends Fragment {
-
-    private UserRepository userRepository;
-    private SharedPrefManager sharedPrefManager;
-    private FirebaseAuth mAuth;
+public class ProfileFragment extends Fragment implements ProfileView {
 
     private TextView tvUserName, tvUserEmail;
     private Chip chipAccountType;
     private TextView btnEditName, btnChangePassword;
     private MaterialButton btnLogout, btnDeleteAccount;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        userRepository = new UserRepository(requireContext());
-        sharedPrefManager = new SharedPrefManager(requireContext());
-        mAuth = FirebaseAuth.getInstance();
-    }
+    private ProfilePresenter presenter;
 
     @Nullable
     @Override
@@ -61,8 +48,17 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         initializeViews(view);
-        loadUserData();
+
+        // Initialize Presenter
+        presenter = new ProfilePresenterImpl(
+                this,
+                new UserRepository(requireContext()),
+                new SharedPrefManager(requireContext())
+        );
+
+        presenter.loadUserProfile();
         setupListeners();
     }
 
@@ -76,120 +72,77 @@ public class ProfileFragment extends Fragment {
         btnDeleteAccount = view.findViewById(R.id.btnDeleteAccount);
     }
 
-    private void loadUserData() {
-        if (sharedPrefManager.isGuest()) {
-            tvUserName.setText("Guest User");
-            tvUserEmail.setText("No Email");
-            chipAccountType.setText("Guest Account");
-
-            btnEditName.setVisibility(View.GONE);
-            btnChangePassword.setVisibility(View.GONE);
-            btnDeleteAccount.setVisibility(View.GONE);
-        } else {
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user != null) {
-                String name = user.getDisplayName();
-                String email = user.getEmail();
-
-                tvUserName.setText((name != null && !name.isEmpty()) ? name : "User");
-                tvUserEmail.setText(email);
-                chipAccountType.setText("Registered Account");
-
-                btnEditName.setVisibility(View.VISIBLE);
-                btnChangePassword.setVisibility(View.VISIBLE);
-                btnDeleteAccount.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
     private void setupListeners() {
         btnEditName.setOnClickListener(v -> showChangeNameDialog());
         btnChangePassword.setOnClickListener(v -> showChangePasswordDialog());
 
-        // Generic Logout Dialog
         btnLogout.setOnClickListener(v -> AlertUtil.showConfirmationDialog(
                 requireContext(),
-                R.string.log_out,
+                getString(R.string.log_out), // Using resource string properly
                 "Are you sure you want to log out?",
-                this::performLogout
+                () -> presenter.logout()
         ));
 
-        // Specific Delete Account Dialog
         btnDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
     }
 
-    // --- DELETE ACCOUNT LOGIC (Local to Fragment) ---
+    // --- MVP View Implementations ---
 
-    private void showDeleteAccountDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle(R.string.delete_account);
-        builder.setMessage("This action is permanent. Please enter your password to confirm.");
+    @Override
+    public void showGuestMode() {
+        tvUserName.setText("Guest User");
+        tvUserEmail.setText("No Email");
+        chipAccountType.setText("Guest Account");
 
-        // Input Field
-        final EditText input = new EditText(requireContext());
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        input.setHint(R.string.password);
-
-        // Layout Container
-        LinearLayout container = new LinearLayout(requireContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(50, 0, 50, 0);
-        input.setLayoutParams(params);
-        container.addView(input);
-
-        builder.setView(container);
-
-        builder.setPositiveButton("DELETE PERMANENTLY", (dialog, which) -> {
-            String password = input.getText().toString();
-            if (!password.isEmpty()) {
-                performDeleteAccount(password);
-            } else {
-                SnackbarUtil.showError(getView(), "Password is required to delete account.");
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        // Color the Positive button RED
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.error_red));
+        btnEditName.setVisibility(View.GONE);
+        btnChangePassword.setVisibility(View.GONE);
+        btnDeleteAccount.setVisibility(View.GONE);
     }
 
-    private void performDeleteAccount(String password) {
-        userRepository.deleteAccount(password, new UserRepository.AuthCallback() {
-            @Override
-            public void onSuccess() {
-                SnackbarUtil.showSuccess(getView(), getString(R.string.account_permanently_deleted));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (getActivity() != null) {
-                        Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        requireActivity().finish();
-                    }
-                }, 2000);
-            }
+    @Override
+    public void showUserMode(String name, String email) {
+        tvUserName.setText(name);
+        tvUserEmail.setText(email);
+        chipAccountType.setText("Registered Account");
 
-            @Override
-            public void onError(String message) {
-                SnackbarUtil.showError(getView(), "Delete Failed: " + message);
-            }
-        });
+        btnEditName.setVisibility(View.VISIBLE);
+        btnChangePassword.setVisibility(View.VISIBLE);
+        btnDeleteAccount.setVisibility(View.VISIBLE);
     }
 
-    // --- OTHER DIALOGS ---
-
-    private void performLogout() {
-        userRepository.logout();
-        if (getActivity() != null) {
-            Intent intent = new Intent(requireActivity(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            requireActivity().finish();
+    @Override
+    public void showSuccess(String message) {
+        if (getView() != null) {
+            SnackbarUtil.showSuccess(getView(), message);
         }
     }
+
+    @Override
+    public void showError(String message) {
+        if (getView() != null) {
+            SnackbarUtil.showError(getView(), message);
+        }
+    }
+
+    @Override
+    public void navigateToLogin() {
+        // Small delay to allow Toast/Snackbar to be seen if needed, or immediate
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (getActivity() != null) {
+                Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                requireActivity().finish();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void dismissLoading() {
+        // Implementation if you add a progress bar later
+    }
+
+    // --- Dialogs (View Logic) ---
 
     private void showChangeNameDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
@@ -197,8 +150,7 @@ public class ProfileFragment extends Fragment {
 
         final EditText input = new EditText(requireContext());
         input.setInputType(InputType.TYPE_CLASS_TEXT);
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) input.setText(user.getDisplayName());
+        input.setText(tvUserName.getText()); // Pre-fill current name
 
         LinearLayout container = new LinearLayout(requireContext());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -211,27 +163,11 @@ public class ProfileFragment extends Fragment {
         builder.setPositiveButton("Save", (dialog, which) -> {
             String newName = input.getText().toString().trim();
             if (!newName.isEmpty()) {
-                updateNameOnFirebase(newName);
+                presenter.updateName(newName);
             }
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
         builder.show();
-    }
-
-    private void updateNameOnFirebase(String newName) {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(newName).build();
-            user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    userRepository.updateNameInFirestore(newName);
-                    tvUserName.setText(newName);
-                    SnackbarUtil.showSuccess(getView(), "Name updated successfully");
-                } else {
-                    SnackbarUtil.showError(getView(), "Failed to update name");
-                }
-            });
-        }
     }
 
     private void showChangePasswordDialog() {
@@ -258,32 +194,53 @@ public class ProfileFragment extends Fragment {
             String current = etCurrentPass.getText().toString();
             String newPass = etNewPass.getText().toString();
             if (!current.isEmpty() && newPass.length() >= 6) {
-                updatePasswordOnFirebase(current, newPass);
+                presenter.updatePassword(current, newPass);
             } else {
-                SnackbarUtil.showError(getView(), "Invalid input. Password min 6 chars.");
+                showError("Invalid input. Password min 6 chars.");
             }
         });
         builder.setNegativeButton(R.string.cancel, null);
         builder.show();
     }
 
-    private void updatePasswordOnFirebase(String currentPassword, String newPassword) {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null && user.getEmail() != null) {
-            AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPassword);
-            user.reauthenticate(credential).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    user.updatePassword(newPassword).addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            SnackbarUtil.showSuccess(getView(), "Password updated");
-                        } else {
-                            SnackbarUtil.showError(getView(), "Failed to update password");
-                        }
-                    });
-                } else {
-                    SnackbarUtil.showError(getView(), "Authentication failed. Check current password.");
-                }
-            });
+    private void showDeleteAccountDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(R.string.delete_account);
+        builder.setMessage("This action is permanent. Please enter your password to confirm.");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setHint(R.string.password);
+
+        LinearLayout container = new LinearLayout(requireContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(50, 0, 50, 0);
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        builder.setView(container);
+
+        builder.setPositiveButton("DELETE PERMANENTLY", (dialog, which) -> {
+            String password = input.getText().toString();
+            if (!password.isEmpty()) {
+                presenter.deleteAccount(password);
+            } else {
+                showError("Password is required to delete account.");
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.error_red));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (presenter != null) {
+            presenter.onDestroy();
         }
     }
 }
