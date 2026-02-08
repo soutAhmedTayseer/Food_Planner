@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.food_planner.R;
+import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.model.PlanMeal;
-import com.example.food_planner.repository.MealRepository;
 import com.example.food_planner.signin.LoginActivity;
 import com.example.food_planner.utils.AlertUtil;
 import com.example.food_planner.utils.SharedPrefManager;
@@ -39,7 +39,7 @@ public class WeeklyPlanFragment extends Fragment {
     private TextView tvEmptyState, tvSelectedDateMeals;
     private View guestOverlay;
 
-    private MealRepository repository;
+    private MealRepository mealRepository;
     private PlanMealsAdapter adapter;
     private SharedPrefManager sharedPrefManager;
     private final CompositeDisposable disposable = new CompositeDisposable();
@@ -99,7 +99,7 @@ public class WeeklyPlanFragment extends Fragment {
             guestOverlay.setVisibility(View.GONE);
         }
 
-        repository = new MealRepository(requireContext());
+        mealRepository = MealRepository.getInstance(requireContext());
         setupRecyclerView();
 
         // 1. Set Initial Date to Today
@@ -141,7 +141,7 @@ public class WeeklyPlanFragment extends Fragment {
     }
 
     private void loadMealsForDate(String date) {
-        disposable.add(repository.getPlansByDate(date)
+        disposable.add(mealRepository.getPlansByDate(date)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(meals -> {
                     if (meals == null || meals.isEmpty()) {
@@ -164,7 +164,7 @@ public class WeeklyPlanFragment extends Fragment {
     }
 
     private void deletePlan(PlanMeal meal) {
-        disposable.add(repository.removeFromPlan(meal)
+        disposable.add(mealRepository.removeFromPlan(meal)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         () -> {

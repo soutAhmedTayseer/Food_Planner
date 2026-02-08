@@ -1,9 +1,9 @@
-package com.example.food_planner.repository;
+package com.example.food_planner.data.repository;
 
 import android.content.Context;
 
-import com.example.food_planner.data.datasource.local.UserDao;
-import com.example.food_planner.data.db.FoodPlannerDatabase;
+import com.example.food_planner.data.datasource.local.LocalDataSource;
+import com.example.food_planner.data.datasource.local.LocalDataSourceImpl;
 import com.example.food_planner.model.UserEntity;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.google.firebase.auth.AuthCredential;
@@ -23,13 +23,14 @@ public class UserRepository {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private UserDao userDao;
+    private LocalDataSource localDataSource; // Replaced UserDao
     private SharedPrefManager sharedPrefManager;
 
     public UserRepository(Context context) {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        userDao = FoodPlannerDatabase.getInstance(context).userDao();
+        // Initialize LocalDataSource via its Implementation
+        localDataSource = LocalDataSourceImpl.getInstance(context);
         sharedPrefManager = new SharedPrefManager(context);
     }
 
@@ -49,7 +50,7 @@ public class UserRepository {
                         // 3. Delete from Firebase Auth (Permanent)
                         user.delete().addOnCompleteListener(deleteTask -> {
                             if (deleteTask.isSuccessful()) {
-                                // 4. Clear Local Data
+                                // 4. Clear Local Data via DataSource
                                 logout();
                                 callback.onSuccess();
                             } else {
@@ -106,7 +107,8 @@ public class UserRepository {
     public void logout() {
         mAuth.signOut();
         sharedPrefManager.logoutUser();
-        userDao.clearUser().subscribeOn(Schedulers.io()).subscribe();
+        // Use localDataSource instead of direct DAO access
+        localDataSource.clearUser().subscribeOn(Schedulers.io()).subscribe();
     }
 
     public void firebaseAuthWithGoogle(String idToken, AuthCallback callback) {
@@ -156,7 +158,8 @@ public class UserRepository {
     }
 
     private void saveUserLocally(UserEntity user) {
-        userDao.insertUser(user).subscribeOn(Schedulers.io()).subscribe();
+        // Use localDataSource instead of direct DAO access
+        localDataSource.insertUser(user).subscribeOn(Schedulers.io()).subscribe();
     }
 
     public interface AuthCallback {
