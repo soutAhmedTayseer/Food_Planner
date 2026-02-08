@@ -78,7 +78,7 @@
 
     <fragment
         android:id="@+id/nav_plan"
-        android:name="com.example.food_planner.planscreen.WeeklyPlanFragment"
+        android:name="com.example.food_planner.planscreen.view.WeeklyPlanFragment"
         android:label="Plan"
         tools:layout="@layout/fragment_plan">
 
