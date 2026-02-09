@@ -18,7 +18,7 @@ public class MealDetail implements Parcelable {
 
     @NonNull
     @SerializedName("idMeal") // Maps JSON "idMeal" to Java "id"
-    private String id;
+    private String id = "";
 
     @NonNull
     private String userId = ""; // Default empty to avoid nulls
@@ -44,6 +44,7 @@ public class MealDetail implements Parcelable {
     // List of ingredients (Handled by our Custom Deserializer later)
     private List<Ingredient> ingredients = new ArrayList<>();
 
+    // REQUIRED for Firebase
     public MealDetail() {
     }
 
@@ -126,11 +127,10 @@ public class MealDetail implements Parcelable {
         this.ingredients.add(ingredient);
     }
 
-    // Parcelable Implementation:
-    // Allows us to pass this entire object from one Activity/Fragment to another safely.
+    // Parcelable Implementation
     protected MealDetail(Parcel in) {
         id = in.readString();
-        userId = in.readString(); // Read userId
+        userId = in.readString();
         name = in.readString();
         category = in.readString();
         area = in.readString();
@@ -143,7 +143,7 @@ public class MealDetail implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeString(userId); // Write userId
+        dest.writeString(userId);
         dest.writeString(name);
         dest.writeString(category);
         dest.writeString(area);
@@ -175,6 +175,10 @@ public class MealDetail implements Parcelable {
         private String name;
         private String measure;
 
+        // REQUIRED for Firebase deserialization
+        public Ingredient() {
+        }
+
         public Ingredient(String name, String measure) {
             this.name = name;
             this.measure = measure;
@@ -184,11 +188,14 @@ public class MealDetail implements Parcelable {
             return name;
         }
 
+        public void setName(String name) { this.name = name; }
+
         public String getMeasure() {
             return measure;
         }
 
-        // Construct the image URL dynamically using the ingredient name
+        public void setMeasure(String measure) { this.measure = measure; }
+
         public String getImageUrl() {
             return "https://www.themealdb.com/images/ingredients/" + name + "-Small.png";
         }
