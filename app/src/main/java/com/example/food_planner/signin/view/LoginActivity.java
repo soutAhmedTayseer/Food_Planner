@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.food_planner.R;
+import com.example.food_planner.data.repository.MealRepository; // IMPORTED
 import com.example.food_planner.data.repository.UserRepository;
 import com.example.food_planner.homescreen.view.HomeActivity;
 import com.example.food_planner.signin.presenter.LoginPresenter;
@@ -41,9 +42,15 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         initViews();
         setupGoogleClient();
 
-        presenter = new LoginPresenterImpl(this, new UserRepository(this), new SharedPrefManager(this));
-        presenter.checkSession();
+        // INJECTION: Pass MealRepository instance here
+        presenter = new LoginPresenterImpl(
+                this,
+                new UserRepository(this),
+                MealRepository.getInstance(this),
+                new SharedPrefManager(this)
+        );
 
+        presenter.checkSession();
         setupListeners();
     }
 

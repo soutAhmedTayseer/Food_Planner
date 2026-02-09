@@ -2,6 +2,7 @@ package com.example.food_planner.signin.presenter;
 
 import android.content.Intent;
 import com.example.food_planner.data.repository.UserRepository;
+import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.signin.view.LoginView;
 import com.example.food_planner.utils.SharedPrefManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -14,19 +15,41 @@ public class LoginPresenterImpl implements LoginPresenter {
 
     private final LoginView view;
     private final UserRepository userRepository;
+    private final MealRepository mealRepository;
     private final SharedPrefManager sharedPrefManager;
 
-    public LoginPresenterImpl(LoginView view, UserRepository userRepository, SharedPrefManager sharedPrefManager) {
+    public LoginPresenterImpl(LoginView view, UserRepository userRepository,
+                              MealRepository mealRepository,
+                              SharedPrefManager sharedPrefManager) {
         this.view = view;
         this.userRepository = userRepository;
+        this.mealRepository = mealRepository;
         this.sharedPrefManager = sharedPrefManager;
     }
 
     @Override
     public void checkSession() {
         if (sharedPrefManager.isLoggedIn()) {
+            // Optional: trigger sync here if you want to be sure
+            // String uid = sharedPrefManager.getUserUid();
+            // mealRepository.syncFavoritesFromFirebase(uid);
+            // mealRepository.syncPlannedMealsFromFirebase(uid);
             view.navigateToHome();
         }
+    }
+
+    private void onLoginSuccess() {
+        view.hideLoading();
+        view.showSuccess("Login Successful!");
+
+        // TRIGGER SYNC
+        String uid = sharedPrefManager.getUserUid();
+        if (!uid.isEmpty()) {
+            mealRepository.syncFavoritesFromFirebase(uid);
+            mealRepository.syncPlannedMealsFromFirebase(uid);
+        }
+
+        view.navigateToHome();
     }
 
     @Override
@@ -40,9 +63,7 @@ public class LoginPresenterImpl implements LoginPresenter {
         userRepository.login(email, password, new UserRepository.AuthCallback() {
             @Override
             public void onSuccess() {
-                view.hideLoading();
-                view.showSuccess("Login Successful!");
-                view.navigateToHome();
+                onLoginSuccess();
             }
 
             @Override
@@ -85,9 +106,7 @@ public class LoginPresenterImpl implements LoginPresenter {
         userRepository.firebaseAuthWithGoogle(idToken, new UserRepository.AuthCallback() {
             @Override
             public void onSuccess() {
-                view.hideLoading();
-                view.showSuccess("Login Successful!");
-                view.navigateToHome();
+                onLoginSuccess();
             }
 
             @Override
