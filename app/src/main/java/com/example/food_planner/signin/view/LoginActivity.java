@@ -1,6 +1,10 @@
 package com.example.food_planner.signin.view;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,7 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.food_planner.R;
-import com.example.food_planner.data.repository.MealRepository; // IMPORTED
+import com.example.food_planner.data.repository.MealRepository;
 import com.example.food_planner.data.repository.UserRepository;
 import com.example.food_planner.homescreen.view.HomeActivity;
 import com.example.food_planner.signin.presenter.LoginPresenter;
@@ -42,7 +46,6 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         initViews();
         setupGoogleClient();
 
-        // INJECTION: Pass MealRepository instance here
         presenter = new LoginPresenterImpl(
                 this,
                 new UserRepository(this),
@@ -111,6 +114,24 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
 
     @Override
     public void launchGoogleSignIn(Intent signInIntent) { googleSignInLauncher.launch(signInIntent); }
+
+    @Override
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) return false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.net.Network network = connectivityManager.getActiveNetwork();
+            if (network == null) return false;
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+            return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+        } else {
+            android.net.NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnected();
+        }
+    }
 
     @Override
     protected void onDestroy() {

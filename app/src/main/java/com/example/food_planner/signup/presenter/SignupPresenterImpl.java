@@ -30,12 +30,17 @@ public class SignupPresenterImpl implements SignupPresenter {
             return;
         }
 
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
+            return;
+        }
+
         view.showLoading();
         userRepository.signUp(username, email, password, new UserRepository.AuthCallback() {
             @Override
             public void onSuccess() {
                 view.hideLoading();
-                view.showSuccess("Account created successfully"); // Using generic string to avoid context dependecy in presenter
+                view.showSuccess("Account created successfully");
                 view.navigateToHome();
             }
 
@@ -49,13 +54,28 @@ public class SignupPresenterImpl implements SignupPresenter {
 
     @Override
     public void doGuestLogin() {
-        sharedPrefManager.saveGuestSession();
-        view.showSuccess("Entering as Guest...");
-        view.navigateToHome();
+        // FIX: Prevent Guest Login if no internet to avoid HomeActivity crash
+        if (!view.isNetworkAvailable()) {
+            view.showError("Internet connection required for Guest Mode");
+            return;
+        }
+
+        try {
+            sharedPrefManager.saveGuestSession();
+            view.showSuccess("Entering as Guest...");
+            view.navigateToHome();
+        } catch (Exception e) {
+            view.showError("Error entering as guest");
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onGoogleSignInClick(GoogleSignInClient client) {
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
+            return;
+        }
         if (client != null) {
             view.launchGoogleSignIn(client.getSignInIntent());
         }
@@ -75,6 +95,11 @@ public class SignupPresenterImpl implements SignupPresenter {
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
+            return;
+        }
+
         view.showLoading();
         userRepository.firebaseAuthWithGoogle(idToken, new UserRepository.AuthCallback() {
             @Override

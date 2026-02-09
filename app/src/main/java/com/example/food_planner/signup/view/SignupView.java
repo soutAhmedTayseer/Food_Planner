@@ -15,4 +15,6 @@ public interface SignupView {
 
     // Google Sign In Trigger
     void launchGoogleSignIn(Intent signInIntent);
+
+    boolean isNetworkAvailable();
 }

@@ -10,4 +10,6 @@ public interface LoginView {
     void navigateToHome();
     void navigateToSignUp();
     void launchGoogleSignIn(Intent signInIntent);
+
+    boolean isNetworkAvailable();
 }

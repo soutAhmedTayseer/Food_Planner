@@ -30,10 +30,6 @@ public class LoginPresenterImpl implements LoginPresenter {
     @Override
     public void checkSession() {
         if (sharedPrefManager.isLoggedIn()) {
-            // Optional: trigger sync here if you want to be sure
-            // String uid = sharedPrefManager.getUserUid();
-            // mealRepository.syncFavoritesFromFirebase(uid);
-            // mealRepository.syncPlannedMealsFromFirebase(uid);
             view.navigateToHome();
         }
     }
@@ -42,9 +38,9 @@ public class LoginPresenterImpl implements LoginPresenter {
         view.hideLoading();
         view.showSuccess("Login Successful!");
 
-        // TRIGGER SYNC
         String uid = sharedPrefManager.getUserUid();
-        if (!uid.isEmpty()) {
+        // Sync only if network is available to prevent crashes
+        if (view.isNetworkAvailable() && !uid.isEmpty()) {
             mealRepository.syncFavoritesFromFirebase(uid);
             mealRepository.syncPlannedMealsFromFirebase(uid);
         }
@@ -56,6 +52,11 @@ public class LoginPresenterImpl implements LoginPresenter {
     public void doLogin(String email, String password) {
         if (email.isEmpty() || password.isEmpty()) {
             view.showError("Please fill in all fields");
+            return;
+        }
+
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
             return;
         }
 
@@ -76,13 +77,28 @@ public class LoginPresenterImpl implements LoginPresenter {
 
     @Override
     public void doGuestLogin() {
-        sharedPrefManager.saveGuestSession();
-        view.showSuccess("Entering as Guest...");
-        view.navigateToHome();
+        // FIX: Prevent Guest Login if no internet to avoid HomeActivity crash
+        if (!view.isNetworkAvailable()) {
+            view.showError("Internet connection required for Guest Mode");
+            return;
+        }
+
+        try {
+            sharedPrefManager.saveGuestSession();
+            view.showSuccess("Entering as Guest...");
+            view.navigateToHome();
+        } catch (Exception e) {
+            view.showError("Error entering as guest: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onGoogleSignInClick(GoogleSignInClient client) {
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
+            return;
+        }
         if (client != null) {
             view.launchGoogleSignIn(client.getSignInIntent());
         }
@@ -102,6 +118,11 @@ public class LoginPresenterImpl implements LoginPresenter {
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
+        if (!view.isNetworkAvailable()) {
+            view.showError("No internet connection");
+            return;
+        }
+
         view.showLoading();
         userRepository.firebaseAuthWithGoogle(idToken, new UserRepository.AuthCallback() {
             @Override
@@ -119,6 +140,5 @@ public class LoginPresenterImpl implements LoginPresenter {
 
     @Override
     public void onDestroy() {
-        // Cleanup if needed
     }
 }
