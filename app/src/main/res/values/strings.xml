@@ -94,4 +94,7 @@
     <string name="user_example_com">user@example.com</string>
     <string name="user_name">User Name</string>
     <string name="account_permanently_deleted">Account permanently deleted</string>
+    <string name="guest_user">Guest User</string>
+    <string name="no_email">No Email</string>
+    <string name="guest_account">Guest Account</string>
 </resources>

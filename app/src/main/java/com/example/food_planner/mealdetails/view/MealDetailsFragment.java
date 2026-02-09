@@ -99,7 +99,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
 
         Glide.with(this)
                 .load(thumbUrl)
-                .placeholder(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_restaurant)
                 .into(ivThumb);
     }
 

@@ -51,8 +51,8 @@ public class PlanMealsAdapter extends RecyclerView.Adapter<PlanMealsAdapter.View
 
         Glide.with(holder.itemView.getContext())
                 .load(meal.getMealThumb())
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_restaurant)
+                .error(R.drawable.ic_restaurant)
                 .into(holder.ivThumb);
 
         holder.itemView.setOnClickListener(v -> listener.onMealClick(meal));

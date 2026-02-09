@@ -61,7 +61,7 @@ public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapte
         Glide.with(holder.itemView.getContext())
                 .load(meal.getThumbUrl())
                 .transform(new CenterCrop())
-                .placeholder(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_restaurant)
                 .into(holder.ivThumb);
 
         holder.itemView.setOnClickListener(v -> {

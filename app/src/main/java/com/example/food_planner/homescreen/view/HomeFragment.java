@@ -194,7 +194,7 @@ public class HomeFragment extends Fragment implements HomeView {
     private void bindDailyMealData(MealDetail meal) {
         tvDailyMealName.setText(meal.getName());
         Glide.with(this).load(meal.getThumbUrl())
-                .placeholder(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_restaurant)
                 .into(ivDailyMeal);
         cardMealOfDay.setOnClickListener(v -> navigateToDetails(meal));
     }
