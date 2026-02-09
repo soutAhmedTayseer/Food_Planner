@@ -75,7 +75,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardMealOfDay"
                     android:layout_width="0dp"
-                    android:layout_height="220dp"
+                    android:layout_height="320dp"
                     android:layout_marginTop="16dp"
                     android:clickable="true"
                     android:focusable="true"
