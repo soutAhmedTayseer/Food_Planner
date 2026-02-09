@@ -18,56 +18,48 @@
   <table align="center">
     <tr>
       <td align="center">
-        <img src="screenshots/splash.png" width="200" alt="Splash Screen" /><br>
-        <sub><b>Splash Screen</b></sub>
-      </td>
-      <td align="center">
-        <img src="screenshots/login.png" width="200" alt="Login" /><br>
+        <img src="https://github.com/user-attachments/assets/693be6ad-894e-497b-aecc-a0e9c9cd50f6" width="200" alt="Login" /><br>
         <sub><b>Login</b></sub>
       </td>
       <td align="center">
-        <img src="screenshots/signup.png" width="200" alt="Sign Up" /><br>
+        <img src="https://github.com/user-attachments/assets/b602192d-b69d-4275-801c-913cb60e85bc" width="200" alt="Sign Up" /><br>
         <sub><b>Sign Up</b></sub>
       </td>
       <td align="center">
-        <img src="screenshots/home.png" width="200" alt="Home" /><br>
-        <sub><b>Home Inspiration</b></sub>
+        <img src="https://github.com/user-attachments/assets/d3aa3f68-ffef-483e-92e9-4c761648a2f3" width="200" alt="Home" /><br>
+        <sub><b>Home & Inspiration</b></sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/6fea512f-24a3-435a-a6f5-ef4674c51fae" width="200" alt="Categories" /><br>
+        <sub><b>Search Categories</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="screenshots/daily_meal.png" width="200" alt="Daily Meal" /><br>
-        <sub><b>Daily Flip Card</b></sub>
+        <img src="https://github.com/user-attachments/assets/70504ac8-9f54-4bdb-ac62-6b8b9137d929" width="200" alt="Countries" /><br>
+        <sub><b>Filter by Country</b></sub>
       </td>
       <td align="center">
-        <img src="screenshots/search.png" width="200" alt="Search" /><br>
-        <sub><b>Search & Filters</b></sub>
-      </td>
-      <td align="center">
-        <img src="screenshots/details.png" width="200" alt="Details" /><br>
+        <img src="https://github.com/user-attachments/assets/e732e210-55ce-4eb8-a9e3-f00339942e9e" width="200" alt="Meal Details" /><br>
         <sub><b>Meal Details</b></sub>
       </td>
       <td align="center">
-        <img src="screenshots/details_scroll.png" width="200" alt="Instructions" /><br>
-        <sub><b>Instructions</b></sub>
+        <img src="https://github.com/user-attachments/assets/0f156a5b-4a1a-432f-8621-3c4265610d06" width="200" alt="Instructions" /><br>
+        <sub><b>Cooking Instructions</b></sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/9bf2c1d6-29df-4e8a-88ba-c8e97faabd56" width="200" alt="Favorites" /><br>
+        <sub><b>Favorites List</b></sub>
       </td>
     </tr>
     <tr>
-      <td align="center">
-        <img src="screenshots/calendar.png" width="200" alt="Plan" /><br>
+      <td align="center" colspan="2">
+        <img src="https://github.com/user-attachments/assets/20010f2f-6748-4ee8-bc47-3f43fa42045a" width="200" alt="Weekly Plan" /><br>
         <sub><b>Weekly Planner</b></sub>
       </td>
-      <td align="center">
-        <img src="screenshots/favorites.png" width="200" alt="Favorites" /><br>
-        <sub><b>Favorites List</b></sub>
-      </td>
-      <td align="center">
-        <img src="screenshots/profile.png" width="200" alt="Profile" /><br>
+      <td align="center" colspan="2">
+        <img src="https://github.com/user-attachments/assets/ce811a5e-5e2f-474d-be7b-a68cc814cbf7" width="200" alt="Profile" /><br>
         <sub><b>User Profile</b></sub>
-      </td>
-      <td align="center">
-        <img src="screenshots/guest.png" width="200" alt="Guest" /><br>
-        <sub><b>Guest Mode</b></sub>
       </td>
     </tr>
   </table>
