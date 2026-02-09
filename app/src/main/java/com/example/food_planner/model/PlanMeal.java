@@ -10,8 +10,11 @@ import com.example.food_planner.data.db.Converters;
 import java.util.ArrayList;
 import java.util.List;
 
-// Primary Key: Combining mealId + planDate + userId ensures you can have
-// the same meal on different days, but not duplicates on the same day.
+// Composite Key: mealId + planDate + userId
+// This allows:
+// 1. Different users to plan the same meal.
+// 2. The SAME user to plan the SAME meal on DIFFERENT days.
+// 3. But PREVENTS the same user from planning the same meal twice on the SAME day.
 @Entity(tableName = "plan_meals", primaryKeys = {"mealId", "planDate", "userId"})
 public class PlanMeal {
 
@@ -31,7 +34,7 @@ public class PlanMeal {
     private String mealInstructions;
     private String mealYoutube;
 
-    // Use Converter for Ingredients
+    // Uses TypeConverters to save the list of ingredients as a String
     @TypeConverters(Converters.class)
     private List<MealDetail.Ingredient> ingredients = new ArrayList<>();
 
@@ -49,12 +52,12 @@ public class PlanMeal {
     }
 
     // --- CONVERSION HELPER ---
-    // Converts a regular MealDetail to a PlanMeal for a specific date
+    // Factory Method: Creates a PlanMeal from a MealDetail + Date + UserID
     public static PlanMeal fromMealDetail(MealDetail meal, String date, String userId) {
         return new PlanMeal(meal.getId(), date, userId, meal.getName(), meal.getThumbUrl(), meal.getArea(), meal.getCategory(), meal.getInstructions(), meal.getYoutubeUrl(), meal.getIngredients());
     }
 
-    // Converts back to MealDetail for navigation
+    // Helper: Converts this back to a MealDetail so we can navigate to the Details Screen.
     public MealDetail toMealDetail() {
         MealDetail meal = new MealDetail();
         meal.setId(this.mealId);

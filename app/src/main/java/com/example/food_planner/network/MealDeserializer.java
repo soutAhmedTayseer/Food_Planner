@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 
+// The API returns ingredients in a terrible format: "strIngredient1", "strIngredient2" ... "strIngredient20".
+// This class manually parses that mess and puts it into a clean List<Ingredient> for our Java objects.
 public class MealDeserializer implements JsonDeserializer<MealDetail> {
     @Override
     public MealDetail deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -34,6 +36,7 @@ public class MealDeserializer implements JsonDeserializer<MealDetail> {
                 JsonElement ingElement = jsonObject.get(ingredientKey);
                 JsonElement measureElement = jsonObject.get(measureKey);
 
+                // If the ingredient is not null and not empty, add it to our list.
                 if (!ingElement.isJsonNull() && !ingElement.getAsString().trim().isEmpty()) {
                     String ingredientName = ingElement.getAsString();
                     String measure = (measureElement != null && !measureElement.isJsonNull()) ? measureElement.getAsString() : "";
