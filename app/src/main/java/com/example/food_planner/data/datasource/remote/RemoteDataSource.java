@@ -1,9 +1,10 @@
 package com.example.food_planner.data.datasource.remote;
 
-import com.example.food_planner.model.Meal;
-import com.example.food_planner.model.MealResponse;
+import com.example.food_planner.model.*;
 import io.reactivex.rxjava3.core.Single;
 
+// Standard interface to abstract the network layer.
+// All returns are 'Single' because a network call happens once and finishes (Success or Error).
 public interface RemoteDataSource {
     Single<Meal> getCategories();
     Single<Meal> getAreas();

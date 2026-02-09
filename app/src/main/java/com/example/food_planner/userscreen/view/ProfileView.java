@@ -12,6 +12,4 @@ public interface ProfileView {
     void showSuccess(String message);
     void showError(String message);
 
-    // Dialog Triggers (Optional, but good for MVP strictness)
-    void dismissLoading();
 }

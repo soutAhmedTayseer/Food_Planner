@@ -17,14 +17,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Make sure this XML has your Lottie Animation
 
-        // Simulate Splash Screen delay (e.g., 3 seconds)
+        // Simulate Splash Screen delay
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             checkUserStatus();
         }, 3000);
     }
 
     private void checkUserStatus() {
-        // TODO: Later, replace "PREFS" with your actual SharedPreference Helper class
         SharedPreferences prefs = getSharedPreferences("FoodPlannerPrefs", MODE_PRIVATE);
         boolean isGuest = prefs.getBoolean("isGuest", false);
         boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);

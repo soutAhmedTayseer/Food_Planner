@@ -1,32 +1,24 @@
 package com.example.food_planner.data.repository;
 
 import android.content.Context;
-
-import com.example.food_planner.data.datasource.local.LocalDataSource;
-import com.example.food_planner.data.datasource.local.LocalDataSourceImpl;
-import com.example.food_planner.data.datasource.remote.RemoteDataSource;
-import com.example.food_planner.data.datasource.remote.RemoteDataSourceImpl;
-import com.example.food_planner.model.Meal;
-import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.model.MealResponse;
-import com.example.food_planner.model.PlanMeal;
+import com.example.food_planner.data.datasource.local.*;
+import com.example.food_planner.data.datasource.remote.*;
+import com.example.food_planner.model.*;
 import com.example.food_planner.utils.SharedPrefManager;
-
 import java.util.List;
-
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.*;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MealRepository {
 
+    // Dependencies: We need Local DB, Remote API, and SharedPrefs.
     private final LocalDataSource localDataSource;
     private final RemoteDataSource remoteDataSource;
     private final SharedPrefManager sharedPrefManager;
 
     private static MealRepository instance;
 
+    // Singleton Pattern: Ensures the entire app uses the same Repository instance.
     public static MealRepository getInstance(Context context) {
         if (instance == null) {
             instance = new MealRepository(context);
@@ -40,12 +32,15 @@ public class MealRepository {
         this.sharedPrefManager = new SharedPrefManager(context);
     }
 
+    // Helper: Gets the current user ID. If no one is logged in, use "guest".
+    // This ensures we save data to the correct profile.
     private String getCurrentUserId() {
         String uid = sharedPrefManager.getUserUid();
         return uid.isEmpty() ? "guest" : uid;
     }
 
-    // --- DAILY MEAL ---
+    // --- DAILY MEAL (Cached in SharedPrefs) ---
+    // We don't want to hit the API every time we open the home screen, so we cache it.
     public MealDetail getValidDailyMeal() {
         return sharedPrefManager.getValidDailyMeal();
     }
@@ -54,7 +49,8 @@ public class MealRepository {
         sharedPrefManager.saveDailyMeal(meal);
     }
 
-    // --- REMOTE CALLS (General) ---
+    // --- REMOTE CALLS (API) ---
+    // These methods just pass the call to the RemoteDataSource.
     public Single<MealResponse> getRandomMeal() {
         return remoteDataSource.getRandomMeal();
     }
@@ -71,7 +67,7 @@ public class MealRepository {
         return remoteDataSource.getIngredients();
     }
 
-    // --- MEALS LIST CALLS (Missing methods added here) ---
+    // --- FILTERING & SEARCH ---
     public Single<Meal> filterByCategory(String category) {
         return remoteDataSource.filterByCategory(category);
     }
@@ -88,9 +84,11 @@ public class MealRepository {
         return remoteDataSource.getMealById(mealId);
     }
 
-    // --- FAVORITES ---
+    // --- FAVORITES (Local Database) ---
+    // Note: We always inject the Current User ID before saving to ensure data privacy.
     public Completable addToFavorites(MealDetail meal) {
         meal.setUserId(getCurrentUserId());
+        // subscribeOn(Schedulers.io()): Crucial! Moves this heavy work to a background thread.
         return localDataSource.insertFav(meal).subscribeOn(Schedulers.io());
     }
 
@@ -107,8 +105,9 @@ public class MealRepository {
         return localDataSource.isFav(mealId, getCurrentUserId()).subscribeOn(Schedulers.io());
     }
 
-    // --- PLAN ---
+    // --- MEAL PLAN (Local Database) ---
     public Completable addToPlan(MealDetail meal, String date) {
+        // We convert the generic "MealDetail" into a specific "PlanMeal" linked to a date.
         PlanMeal planMeal = PlanMeal.fromMealDetail(meal, date, getCurrentUserId());
         return localDataSource.insertPlan(planMeal).subscribeOn(Schedulers.io());
     }

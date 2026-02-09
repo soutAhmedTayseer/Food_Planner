@@ -49,8 +49,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         Glide.with(holder.itemView.getContext())
                 .load(item.getThumbnailUrl())
                 .transform(new CenterCrop(), new RoundedCorners(24))
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .error(R.drawable.ic_launcher_foreground)
+                .placeholder(R.drawable.ic_restaurant)
+                .error(R.drawable.ic_restaurant)
                 .into(holder.ivThumb);
 
         ViewCompat.setTransitionName(holder.ivThumb, item.getName());
@@ -88,7 +88,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
         ImageView ivThumb;
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvCategoryName);

@@ -4,75 +4,47 @@ import com.google.gson.annotations.SerializedName;
 
 public class MealItem {
 
-    // --- NEW FIELDS FOR MEALS (Meal of the Day / Search Results) ---
+    // Fields for when this item is a Meal
     @SerializedName("idMeal")
     private String id;
-
     @SerializedName("strMeal")
     private String mealName;
-
     @SerializedName("strMealThumb")
     private String mealThumb;
 
-
-    // --- EXISTING FIELDS (Categories/Areas/Ingredients) ---
+    // Fields for when this item is a Category/Area/Ingredient
     @SerializedName("strCategory")
     private String categoryName;
-
     @SerializedName("strArea")
     private String areaName;
-
     @SerializedName("strIngredient")
     private String ingredientName;
-
     @SerializedName("strCategoryThumb")
     private String categoryThumb;
 
-    // --- 1. Smart Name Getter ---
     public String getName() {
-        // Check for specific Meal Name first (Priority 1)
         if (mealName != null && !mealName.isEmpty()) return mealName;
-
         if (categoryName != null && !categoryName.isEmpty()) return categoryName;
         if (areaName != null && !areaName.isEmpty()) return areaName;
         if (ingredientName != null && !ingredientName.isEmpty()) return ingredientName;
         return "Unknown";
     }
 
-    // --- 2. Smart Image Getter ---
     public String getThumbnailUrl() {
-        // A. Specific Meal Image (Priority 1)
-        if (mealThumb != null && !mealThumb.isEmpty()) {
-            return mealThumb;
-        }
+        if (mealThumb != null && !mealThumb.isEmpty()) return mealThumb;
 
-        // B. Category Image
-        if (categoryThumb != null && !categoryThumb.isEmpty()) {
-            return categoryThumb;
-        }
+        if (categoryThumb != null && !categoryThumb.isEmpty()) return categoryThumb;
 
-        // C. Category Image (Constructed)
-        if (categoryName != null && !categoryName.isEmpty()) {
-            return "https://www.themealdb.com/images/category/" + categoryName + ".png";
-        }
-
-        // D. Ingredient Image
-        if (ingredientName != null && !ingredientName.isEmpty()) {
-            return "https://www.themealdb.com/images/ingredients/" + ingredientName + ".png";
-        }
-
-        // E. Country Flag
-        if (areaName != null && !areaName.isEmpty()) {
-            String countryCode = getCountryCode(areaName);
-            return "https://flagcdn.com/w320/" + countryCode + ".png";
-        }
+        if (categoryName != null) return "https://www.themealdb.com/images/category/" + categoryName + ".png";
+        if (ingredientName != null) return "https://www.themealdb.com/images/ingredients/" + ingredientName + ".png";
+        if (areaName != null) return "https://flagcdn.com/w320/" + getCountryCode(areaName) + ".png";
 
         return null;
     }
 
     public String getId() { return id; }
 
-    // (Keep your existing getCountryCode method exactly as it is...)
+    // Helper to map Area names (Gentilic) to ISO country codes for flags.
     private String getCountryCode(String areaName) {
         switch (areaName) {
             case "American": return "us";

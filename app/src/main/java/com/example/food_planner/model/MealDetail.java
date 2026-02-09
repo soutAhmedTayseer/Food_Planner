@@ -12,12 +12,12 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-// 1. COMPOSITE KEY: The unique ID is now the Meal ID + The User ID
+// Primary Keys: Combining ID + UserId means two different users can favorite the same meal without conflict.
 @Entity(tableName = "fav_meals", primaryKeys = {"id", "userId"})
 public class MealDetail implements Parcelable {
 
     @NonNull
-    @SerializedName("idMeal")
+    @SerializedName("idMeal") // Maps JSON "idMeal" to Java "id"
     private String id;
 
     @NonNull
@@ -41,6 +41,7 @@ public class MealDetail implements Parcelable {
     @SerializedName("strYoutube")
     private String youtubeUrl;
 
+    // List of ingredients (Handled by our Custom Deserializer later)
     private List<Ingredient> ingredients = new ArrayList<>();
 
     public MealDetail() {
@@ -125,7 +126,8 @@ public class MealDetail implements Parcelable {
         this.ingredients.add(ingredient);
     }
 
-    // --- PARCELABLE (Include userId) ---
+    // Parcelable Implementation:
+    // Allows us to pass this entire object from one Activity/Fragment to another safely.
     protected MealDetail(Parcel in) {
         id = in.readString();
         userId = in.readString(); // Read userId
@@ -168,6 +170,7 @@ public class MealDetail implements Parcelable {
         }
     };
 
+    // Inner class for Ingredients
     public static class Ingredient implements Parcelable {
         private String name;
         private String measure;
@@ -185,6 +188,7 @@ public class MealDetail implements Parcelable {
             return measure;
         }
 
+        // Construct the image URL dynamically using the ingredient name
         public String getImageUrl() {
             return "https://www.themealdb.com/images/ingredients/" + name + "-Small.png";
         }

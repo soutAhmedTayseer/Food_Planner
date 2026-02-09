@@ -1,13 +1,13 @@
 package com.example.food_planner.data.datasource.remote;
 
-import com.example.food_planner.model.Meal;
-import com.example.food_planner.model.MealResponse;
+import com.example.food_planner.model.*;
 import io.reactivex.rxjava3.core.Single;
 
 public class RemoteDataSourceImpl implements RemoteDataSource {
     private static RemoteDataSourceImpl instance;
     private final FoodApi foodApi;
 
+    // Singleton: We only want one instance handling network calls.
     public static RemoteDataSourceImpl getInstance() {
         if (instance == null) {
             instance = new RemoteDataSourceImpl();
@@ -15,12 +15,13 @@ public class RemoteDataSourceImpl implements RemoteDataSource {
         return instance;
     }
 
+    // Constructor: Creates the Retrofit service.
     private RemoteDataSourceImpl() {
-        // Assuming NetworkClient is updated to return Retrofit or FoodApi directly
-        // If NetworkClient is in com.example.food_planner.network, import it.
-        // If moved to remote package, usage is direct.
+        // We get the Retrofit client from our NetworkClient helper and create the FoodApi implementation.
         this.foodApi = com.example.food_planner.network.NetworkClient.getRetrofitInstance().create(FoodApi.class);
     }
+
+    // The following methods just forward the call to the Retrofit API interface.
 
     @Override
     public Single<Meal> getCategories() {

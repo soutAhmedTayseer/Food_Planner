@@ -11,19 +11,20 @@ public class NetworkClient {
     private static Retrofit retrofit;
     private static final String BASE_URL = "https://www.themealdb.com/api/json/v1/1/";
 
+    // Singleton: We only need one Retrofit instance for the whole app.
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
 
-            // 1. Create custom Gson with our Deserializer
+            // Create custom Gson
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(MealDetail.class, new MealDeserializer())
                     .create();
 
-            // 2. Build Retrofit
+            // Build Retrofit
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create(gson)) // Use the custom Gson
-                    .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson)) // Plug in our custom Gson
+                    .addCallAdapterFactory(RxJava3CallAdapterFactory.create()) // Enable RxJava
                     .build();
         }
         return retrofit;

@@ -122,7 +122,7 @@ public class SearchFragment extends Fragment implements SearchView, OnSearchItem
         presenter.searchByType(currentType);
     }
 
-    // --- MVP View Implementation (Restoring Old Animation Logic) ---
+    // --- MVP View Implementation ---
 
     @Override
     public void showLoading() {
@@ -130,7 +130,7 @@ public class SearchFragment extends Fragment implements SearchView, OnSearchItem
             lottieLoading.setVisibility(View.VISIBLE);
             lottieLoading.playAnimation();
             // Fade out recycler
-            recyclerView.animate().alpha(0f).setDuration(200).withEndAction(() -> recyclerView.setVisibility(View.GONE));
+            recyclerView.animate().alpha(0f).setDuration(500).withEndAction(() -> recyclerView.setVisibility(View.GONE));
         }
     }
 
@@ -141,7 +141,7 @@ public class SearchFragment extends Fragment implements SearchView, OnSearchItem
             lottieLoading.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
             // Fade in recycler
-            recyclerView.animate().alpha(1f).setDuration(300);
+            recyclerView.animate().alpha(1f).setDuration(500);
         }
     }
 

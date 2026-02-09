@@ -114,6 +114,5 @@ public class SignupPresenterImpl implements SignupPresenter {
 
     @Override
     public void onDestroy() {
-        // Cleanup if needed
     }
 }

@@ -2,13 +2,9 @@ package com.example.food_planner.data.datasource.local;
 
 import android.content.Context;
 import com.example.food_planner.data.db.FoodPlannerDatabase;
-import com.example.food_planner.model.MealDetail;
-import com.example.food_planner.model.PlanMeal;
-import com.example.food_planner.model.UserEntity;
+import com.example.food_planner.model.*;
 import java.util.List;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.*;
 
 public class LocalDataSourceImpl implements LocalDataSource {
 
@@ -17,6 +13,7 @@ public class LocalDataSourceImpl implements LocalDataSource {
     private final UserDao userDao;
     private static LocalDataSourceImpl instance;
 
+    // Singleton: Ensures we share the same data source manager across the app.
     public static LocalDataSourceImpl getInstance(Context context) {
         if (instance == null) {
             instance = new LocalDataSourceImpl(context);
@@ -24,6 +21,7 @@ public class LocalDataSourceImpl implements LocalDataSource {
         return instance;
     }
 
+    // Constructor: Initializes the connection to the specific Database tables (DAOs).
     private LocalDataSourceImpl(Context context) {
         FoodPlannerDatabase db = FoodPlannerDatabase.getInstance(context);
         this.mealDao = db.mealDao();
@@ -31,7 +29,7 @@ public class LocalDataSourceImpl implements LocalDataSource {
         this.userDao = db.userDao();
     }
 
-    // --- Favorites ---
+    // --- Favorites (Pass-through to MealDao) ---
     @Override
     public Completable insertFav(MealDetail meal) {
         return mealDao.insertFav(meal);
@@ -52,7 +50,7 @@ public class LocalDataSourceImpl implements LocalDataSource {
         return mealDao.isFav(mealId, userId);
     }
 
-    // --- Planning ---
+    // --- Planning (Pass-through to PlanDao) ---
     @Override
     public Completable insertPlan(PlanMeal planMeal) {
         return planDao.insertPlan(planMeal);
@@ -73,7 +71,7 @@ public class LocalDataSourceImpl implements LocalDataSource {
         return planDao.getAllPlans(userId);
     }
 
-    // --- User ---
+    // --- User (Pass-through to UserDao) ---
     @Override
     public Completable insertUser(UserEntity user) {
         return userDao.insertUser(user);

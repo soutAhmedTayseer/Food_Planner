@@ -90,9 +90,9 @@ public class ProfileFragment extends Fragment implements ProfileView {
 
     @Override
     public void showGuestMode() {
-        tvUserName.setText("Guest User");
-        tvUserEmail.setText("No Email");
-        chipAccountType.setText("Guest Account");
+        tvUserName.setText(R.string.guest_user);
+        tvUserEmail.setText(R.string.no_email);
+        chipAccountType.setText(R.string.guest_account);
 
         btnEditName.setVisibility(View.GONE);
         btnChangePassword.setVisibility(View.GONE);
@@ -103,7 +103,7 @@ public class ProfileFragment extends Fragment implements ProfileView {
     public void showUserMode(String name, String email) {
         tvUserName.setText(name);
         tvUserEmail.setText(email);
-        chipAccountType.setText("Registered Account");
+        chipAccountType.setText(R.string.registered_account);
 
         btnEditName.setVisibility(View.VISIBLE);
         btnChangePassword.setVisibility(View.VISIBLE);
@@ -137,10 +137,6 @@ public class ProfileFragment extends Fragment implements ProfileView {
         }, 500);
     }
 
-    @Override
-    public void dismissLoading() {
-        // Implementation if you add a progress bar later
-    }
 
     // --- Dialogs (View Logic) ---
 
