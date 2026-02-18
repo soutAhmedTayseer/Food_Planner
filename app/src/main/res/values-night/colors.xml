@@ -85,4 +85,11 @@
 
     <color name="brand_text">@color/md_theme_onSurface</color>
 
+
+    <!-- Preperroni Colors (Dark Mode Adjustments if needed, keeping vibrant for now) -->
+    <color name="tomato_red">#FF8A8A</color> <!-- Slightly lighter for dark mode visibility -->
+    <color name="zest_yellow">#FFE066</color>
+    <color name="flour_white">#2C2C2C</color> <!-- Darker background equivalent -->
+    <color name="cast_iron_black">#E0E0E0</color> <!-- Lighter text equivalent -->
+
 </resources>
