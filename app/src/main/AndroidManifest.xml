@@ -24,6 +24,7 @@
         <activity android:name=".signin.view.LoginActivity" android:exported="false"/>
         <activity android:name=".signup.view.SignupActivity" android:exported="false"/>
         <activity android:name=".homescreen.view.HomeActivity" android:exported="false"/>
+        <activity android:name=".onboarding.view.OnboardingActivity" android:exported="false"/>
     </application>
 
 </manifest>
