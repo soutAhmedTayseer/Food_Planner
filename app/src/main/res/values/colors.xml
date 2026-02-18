@@ -40,4 +40,10 @@
     <color name="brand_background">@color/md_theme_background</color>
     <color name="brand_surface">@color/md_theme_surface</color>
     <color name="brand_text">@color/md_theme_onSurface</color>
+
+    <!-- Preperroni Colors -->
+    <color name="tomato_red">#FF6B6B</color>
+    <color name="zest_yellow">#FFD93D</color>
+    <color name="flour_white">#FAFAFA</color>
+    <color name="cast_iron_black">#1A1A1A</color>
 </resources>

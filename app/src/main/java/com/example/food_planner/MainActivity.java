@@ -29,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
         boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
 
         Intent intent;
-        if (isLoggedIn || isGuest) {
+        if (isFirstTime()) {
+            intent = new Intent(MainActivity.this, com.example.food_planner.onboarding.view.OnboardingActivity.class);
+        } else if (isLoggedIn || isGuest) {
             // User is known, go to Home
             intent = new Intent(MainActivity.this, HomeActivity.class);
         } else {
@@ -39,5 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         startActivity(intent);
         finish(); // Remove Splash from back stack
+    }
+
+    private boolean isFirstTime() {
+        SharedPreferences prefs = getSharedPreferences("FoodPlannerPrefs", MODE_PRIVATE);
+        return prefs.getBoolean("isFirstTime", true);
     }
 }
