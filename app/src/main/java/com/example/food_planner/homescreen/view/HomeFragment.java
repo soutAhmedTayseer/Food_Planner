@@ -58,7 +58,8 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -73,8 +74,9 @@ public class HomeFragment extends Fragment implements HomeView {
         presenter = new HomePresenterImpl(this, MealRepository.getInstance(requireContext()));
 
         // Start Data Loading
-        presenter.getDailyMeal();
-        presenter.getInspirationMeals();
+        // Moved to onResume for better lifecycle handling
+        // presenter.getDailyMeal();
+        // presenter.getInspirationMeals(false);
 
         setupSwipeRefresh();
     }
@@ -102,13 +104,15 @@ public class HomeFragment extends Fragment implements HomeView {
         rvCarousel.setClipChildren(false);
         rvCarousel.setClipToPadding(false);
 
-        carouselAdapter.setOnItemClickListener(this::navigateToDetails);
+        carouselAdapter.setOnItemClickListener(meal -> presenter.onInspirationMealClicked(meal));
     }
 
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (isNetworkAvailable()) {
-                presenter.getInspirationMeals();
+                presenter.getInspirationMeals(true);
+                // Also update the daily meal as requested
+                presenter.requestNewDailyMeal();
             } else {
                 showNetworkError();
                 swipeRefreshLayout.setRefreshing(false);
@@ -117,23 +121,6 @@ public class HomeFragment extends Fragment implements HomeView {
     }
 
     // --- MVP View Implementation ---
-
-    @Override
-    public void showLoading() {
-        if (!swipeRefreshLayout.isRefreshing()) {
-            shimmerFrameLayout.startShimmer();
-            shimmerFrameLayout.setVisibility(View.VISIBLE);
-            contentLayout.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void hideLoading() {
-        shimmerFrameLayout.stopShimmer();
-        shimmerFrameLayout.setVisibility(View.GONE);
-        contentLayout.setVisibility(View.VISIBLE);
-        swipeRefreshLayout.setRefreshing(false);
-    }
 
     @Override
     public void showDailyMeal(MealDetail meal) {
@@ -175,7 +162,8 @@ public class HomeFragment extends Fragment implements HomeView {
     @Override
     public void showInspirationMeals(List<MealDetail> meals) {
         carouselAdapter.setList(meals);
-        if (!meals.isEmpty()) startAutoScroll();
+        if (!meals.isEmpty())
+            startAutoScroll();
     }
 
     @Override
@@ -193,22 +181,51 @@ public class HomeFragment extends Fragment implements HomeView {
 
     private void bindDailyMealData(MealDetail meal) {
         tvDailyMealName.setText(meal.getName());
+
         Glide.with(this).load(meal.getThumbUrl())
                 .placeholder(R.drawable.ic_restaurant)
                 .into(ivDailyMeal);
-        cardMealOfDay.setOnClickListener(v -> navigateToDetails(meal));
+        cardMealOfDay.setOnClickListener(v -> navigateToMealDetails(meal));
     }
 
-    private void navigateToDetails(MealDetail meal) {
+    @Override
+    public void showLoading() {
+        // ALWAYS show shimmer, even if swiping. Mask the specific swipe spinner if
+        // needed.
+        shimmerFrameLayout.startShimmer();
+        shimmerFrameLayout.setVisibility(View.VISIBLE);
+        contentLayout.setVisibility(View.GONE);
+
+        // If we are refreshing, stop the spinner so we see the shimmer instead
+        if (swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void hideLoading() {
+        shimmerFrameLayout.stopShimmer();
+        shimmerFrameLayout.setVisibility(View.GONE);
+        contentLayout.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    // ... (existing methods for showDailyMeal, showMysteryCard, animateFlipToMeal
+    // remain same)
+
+    @Override
+    public void navigateToMealDetails(MealDetail meal) {
         if (meal != null) {
-            HomeFragmentDirections.ActionHomeToMealDetails action =
-                    HomeFragmentDirections.actionHomeToMealDetails(meal);
+            android.util.Log.d("HomeFragment", "Navigating to meal details: " + meal.getName());
+            HomeFragmentDirections.ActionHomeToMealDetails action = HomeFragmentDirections
+                    .actionHomeToMealDetails(meal);
             Navigation.findNavController(requireView()).navigate(action);
         }
     }
 
     private void autoScrollCarousel() {
-        if (rvCarousel == null || carouselAdapter == null || carouselAdapter.getActualItemCount() == 0) return;
+        if (rvCarousel == null || carouselAdapter == null || carouselAdapter.getActualItemCount() == 0)
+            return;
 
         RecyclerView.LayoutManager layoutManager = rvCarousel.getLayoutManager();
         if (layoutManager != null && snapHelper != null) {
@@ -245,7 +262,15 @@ public class HomeFragment extends Fragment implements HomeView {
     @Override
     public void onResume() {
         super.onResume();
-        if (carouselAdapter != null && carouselAdapter.getItemCount() > 0) startAutoScroll();
+
+        // Fix for Infinite Shimmer: Fetch data when view is visible
+        if (presenter != null) {
+            presenter.getDailyMeal();
+            presenter.getInspirationMeals(false);
+        }
+
+        if (carouselAdapter != null && carouselAdapter.getItemCount() > 0)
+            startAutoScroll();
     }
 
     @Override

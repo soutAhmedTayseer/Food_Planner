@@ -52,14 +52,23 @@ public class HomePresenterImpl implements HomePresenter {
     }
 
     @Override
-    public void getInspirationMeals() {
+    public void getInspirationMeals(boolean forceRefresh) {
+        if (!forceRefresh) {
+            List<MealDetail> cachedMeals = repository.getInspirationMeals();
+            if (cachedMeals != null && !cachedMeals.isEmpty()) {
+                view.hideLoading(); // <--- CRITICAL FIX: Hide shimmer when loading from cache
+                view.showInspirationMeals(cachedMeals);
+                return;
+            }
+        }
+
         view.showLoading();
         // Fetch 10 random meals concurrently
         disposable.add(Observable.range(0, 10)
                 .flatMapSingle(i -> repository.getRandomMeal()
                         .subscribeOn(Schedulers.io()))
                 .toList()
-                .delay(1000, TimeUnit.MILLISECONDS) // UX: Ensure shimmer is seen briefly
+                .delay(2000, TimeUnit.MILLISECONDS) // UX: Ensure shimmer is seen briefly
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(responses -> {
                     List<MealDetail> meals = new ArrayList<>();
@@ -68,12 +77,23 @@ public class HomePresenterImpl implements HomePresenter {
                             meals.add(res.getMeals().get(0));
                         }
                     }
+                    if (!meals.isEmpty()) {
+                        repository.saveInspirationMeals(meals);
+                    }
                     view.hideLoading();
                     view.showInspirationMeals(meals);
                 }, error -> {
                     view.hideLoading();
                     view.showError("Failed to load inspiration");
                 }));
+    }
+
+    @Override
+    public void onInspirationMealClicked(MealDetail meal) {
+        if (meal != null) {
+            android.util.Log.d("HomePresenter", "Navigating to meal: " + meal.getName());
+            view.navigateToMealDetails(meal);
+        }
     }
 
     @Override
