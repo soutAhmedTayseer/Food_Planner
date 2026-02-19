@@ -57,7 +57,8 @@ public class MealRepository {
     // --- SYNC: Firebase -> Room ---
 
     public void syncFavoritesFromFirebase(String userId) {
-        if (userId == null || userId.equals("guest")) return;
+        if (userId == null || userId.equals("guest"))
+            return;
 
         removeFirebaseListeners();
         favoritesRef = firebaseRoot.child("users").child(userId).child("favorites");
@@ -71,7 +72,8 @@ public class MealRepository {
                     // Force update local DB
                     localDataSource.insertFav(meal)
                             .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {}, Throwable::printStackTrace);
+                            .subscribe(() -> {
+                            }, Throwable::printStackTrace);
                 }
             }
 
@@ -87,18 +89,25 @@ public class MealRepository {
                     meal.setUserId(userId);
                     localDataSource.deleteFav(meal)
                             .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {}, Throwable::printStackTrace);
+                            .subscribe(() -> {
+                            }, Throwable::printStackTrace);
                 }
             }
 
-            @Override public void onChildMoved(DataSnapshot snapshot, String previousChildName) {}
-            @Override public void onCancelled(DatabaseError error) {}
+            @Override
+            public void onChildMoved(DataSnapshot snapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+            }
         };
         favoritesRef.addChildEventListener(favoritesListener);
     }
 
     public void syncPlannedMealsFromFirebase(String userId) {
-        if (userId == null || userId.equals("guest")) return;
+        if (userId == null || userId.equals("guest"))
+            return;
 
         plannedRef = firebaseRoot.child("users").child(userId).child("plannedMeals");
 
@@ -110,7 +119,8 @@ public class MealRepository {
                     plan.setUserId(userId);
                     localDataSource.insertPlan(plan)
                             .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {}, Throwable::printStackTrace);
+                            .subscribe(() -> {
+                            }, Throwable::printStackTrace);
                 }
             }
 
@@ -125,12 +135,18 @@ public class MealRepository {
                 if (plan != null) {
                     localDataSource.deletePlan(plan)
                             .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {}, Throwable::printStackTrace);
+                            .subscribe(() -> {
+                            }, Throwable::printStackTrace);
                 }
             }
 
-            @Override public void onChildMoved(DataSnapshot snapshot, String previousChildName) {}
-            @Override public void onCancelled(DatabaseError error) {}
+            @Override
+            public void onChildMoved(DataSnapshot snapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+            }
         };
         plannedRef.addChildEventListener(plannedListener);
     }
@@ -156,13 +172,11 @@ public class MealRepository {
                 .subscribeOn(Schedulers.io())
                 .andThen(Completable.defer(() -> {
                     if (!uid.equals("guest")) {
-                        return Completable.create(emitter ->
-                                firebaseRoot.child("users").child(uid)
-                                        .child("favorites").child(meal.getId())
-                                        .setValue(meal)
-                                        .addOnSuccessListener(aVoid -> emitter.onComplete())
-                                        .addOnFailureListener(emitter::onError)
-                        );
+                        return Completable.create(emitter -> firebaseRoot.child("users").child(uid)
+                                .child("favorites").child(meal.getId())
+                                .setValue(meal)
+                                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                                .addOnFailureListener(emitter::onError));
                     }
                     return Completable.complete();
                 }));
@@ -176,13 +190,11 @@ public class MealRepository {
                 .subscribeOn(Schedulers.io())
                 .andThen(Completable.defer(() -> {
                     if (!uid.equals("guest")) {
-                        return Completable.create(emitter ->
-                                firebaseRoot.child("users").child(uid)
-                                        .child("favorites").child(meal.getId())
-                                        .removeValue()
-                                        .addOnSuccessListener(aVoid -> emitter.onComplete())
-                                        .addOnFailureListener(emitter::onError)
-                        );
+                        return Completable.create(emitter -> firebaseRoot.child("users").child(uid)
+                                .child("favorites").child(meal.getId())
+                                .removeValue()
+                                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                                .addOnFailureListener(emitter::onError));
                     }
                     return Completable.complete();
                 }));
@@ -197,13 +209,11 @@ public class MealRepository {
                 .subscribeOn(Schedulers.io())
                 .andThen(Completable.defer(() -> {
                     if (!uid.equals("guest")) {
-                        return Completable.create(emitter ->
-                                firebaseRoot.child("users").child(uid)
-                                        .child("plannedMeals").child(firebaseKey)
-                                        .setValue(planMeal)
-                                        .addOnSuccessListener(aVoid -> emitter.onComplete())
-                                        .addOnFailureListener(emitter::onError)
-                        );
+                        return Completable.create(emitter -> firebaseRoot.child("users").child(uid)
+                                .child("plannedMeals").child(firebaseKey)
+                                .setValue(planMeal)
+                                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                                .addOnFailureListener(emitter::onError));
                     }
                     return Completable.complete();
                 }));
@@ -217,13 +227,11 @@ public class MealRepository {
                 .subscribeOn(Schedulers.io())
                 .andThen(Completable.defer(() -> {
                     if (!uid.equals("guest")) {
-                        return Completable.create(emitter ->
-                                firebaseRoot.child("users").child(uid)
-                                        .child("plannedMeals").child(firebaseKey)
-                                        .removeValue()
-                                        .addOnSuccessListener(aVoid -> emitter.onComplete())
-                                        .addOnFailureListener(emitter::onError)
-                        );
+                        return Completable.create(emitter -> firebaseRoot.child("users").child(uid)
+                                .child("plannedMeals").child(firebaseKey)
+                                .removeValue()
+                                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                                .addOnFailureListener(emitter::onError));
                     }
                     return Completable.complete();
                 }));
@@ -247,14 +255,52 @@ public class MealRepository {
     }
 
     // --- REMOTE API DELEGATES ---
-    public MealDetail getValidDailyMeal() { return sharedPrefManager.getValidDailyMeal(); }
-    public void saveDailyMeal(MealDetail meal) { sharedPrefManager.saveDailyMeal(meal); }
-    public Single<MealResponse> getRandomMeal() { return remoteDataSource.getRandomMeal(); }
-    public Single<Meal> getCategories() { return remoteDataSource.getCategories(); }
-    public Single<Meal> getAreas() { return remoteDataSource.getAreas(); }
-    public Single<Meal> getIngredients() { return remoteDataSource.getIngredients(); }
-    public Single<Meal> filterByCategory(String c) { return remoteDataSource.filterByCategory(c); }
-    public Single<Meal> filterByArea(String a) { return remoteDataSource.filterByArea(a); }
-    public Single<Meal> filterByIngredient(String i) { return remoteDataSource.filterByIngredient(i); }
-    public Single<MealResponse> getMealById(String id) { return remoteDataSource.getMealById(id); }
+    public MealDetail getValidDailyMeal() {
+        return sharedPrefManager.getValidDailyMeal();
+    }
+
+    public void saveDailyMeal(MealDetail meal) {
+        sharedPrefManager.saveDailyMeal(meal);
+    }
+
+    public Single<MealResponse> getRandomMeal() {
+        return remoteDataSource.getRandomMeal();
+    }
+
+    public Single<Meal> getCategories() {
+        return remoteDataSource.getCategories();
+    }
+
+    public Single<Meal> getAreas() {
+        return remoteDataSource.getAreas();
+    }
+
+    public Single<Meal> getIngredients() {
+        return remoteDataSource.getIngredients();
+    }
+
+    public Single<Meal> filterByCategory(String c) {
+        return remoteDataSource.filterByCategory(c);
+    }
+
+    public Single<Meal> filterByArea(String a) {
+        return remoteDataSource.filterByArea(a);
+    }
+
+    public Single<Meal> filterByIngredient(String i) {
+        return remoteDataSource.filterByIngredient(i);
+    }
+
+    public Single<MealResponse> getMealById(String id) {
+        return remoteDataSource.getMealById(id);
+    }
+
+    // --- CACHE DELEGATES ---
+    public void saveInspirationMeals(List<MealDetail> meals) {
+        sharedPrefManager.saveInspirationMeals(meals);
+    }
+
+    public List<MealDetail> getInspirationMeals() {
+        return sharedPrefManager.getInspirationMeals();
+    }
 }

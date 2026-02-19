@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.example.food_planner.model.MealDetail;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 
 public class SharedPrefManager {
@@ -18,6 +22,7 @@ public class SharedPrefManager {
     // Prefixes kept
     private static final String KEY_DAILY_MEAL_PREFIX = "daily_meal_";
     private static final String KEY_DAILY_EXPIRY_PREFIX = "daily_meal_expiry_";
+    private static final String KEY_INSPIRATION_MEALS = "inspiration_meals";
 
     // Removed: KEY_LANGUAGE, KEY_IS_DARK_MODE, KEY_SYNC, KEY_BACKUP
 
@@ -33,9 +38,11 @@ public class SharedPrefManager {
     public boolean isLoggedIn() {
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }
+
     public boolean isGuest() {
         return sharedPreferences.getBoolean(KEY_IS_GUEST, false);
     }
+
     public void saveUserSession(String email, String uid) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
@@ -44,6 +51,7 @@ public class SharedPrefManager {
         editor.putString(KEY_USER_UID, uid);
         editor.apply();
     }
+
     public void saveGuestSession() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
@@ -51,12 +59,15 @@ public class SharedPrefManager {
         editor.putString(KEY_USER_UID, "guest_id");
         editor.apply();
     }
+
     public String getUserUid() {
         return sharedPreferences.getString(KEY_USER_UID, "");
     }
+
     public String getUserEmail() {
         return sharedPreferences.getString(KEY_USER_EMAIL, "");
     }
+
     public void logoutUser() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(KEY_IS_LOGGED_IN);
@@ -69,7 +80,8 @@ public class SharedPrefManager {
     // --- DAILY MEAL (Kept as it was not requested to be removed) ---
     public void saveDailyMeal(MealDetail meal) {
         String uid = getUserUid();
-        if (uid.isEmpty()) return;
+        if (uid.isEmpty())
+            return;
         String mealJson = gson.toJson(meal);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -83,14 +95,33 @@ public class SharedPrefManager {
                 .putLong(KEY_DAILY_EXPIRY_PREFIX + uid, expiryTime)
                 .apply();
     }
+
     public MealDetail getValidDailyMeal() {
         String uid = getUserUid();
-        if (uid.isEmpty()) return null;
+        if (uid.isEmpty())
+            return null;
         long expiryTime = sharedPreferences.getLong(KEY_DAILY_EXPIRY_PREFIX + uid, 0);
         long currentTime = System.currentTimeMillis();
         if (currentTime < expiryTime) {
             String json = sharedPreferences.getString(KEY_DAILY_MEAL_PREFIX + uid, null);
-            if (json != null) return gson.fromJson(json, MealDetail.class);
+            if (json != null)
+                return gson.fromJson(json, MealDetail.class);
+        }
+        return null;
+    }
+
+    // --- INSPIRATION MEALS ---
+    public void saveInspirationMeals(List<MealDetail> meals) {
+        String json = gson.toJson(meals);
+        sharedPreferences.edit().putString(KEY_INSPIRATION_MEALS, json).apply();
+    }
+
+    public List<MealDetail> getInspirationMeals() {
+        String json = sharedPreferences.getString(KEY_INSPIRATION_MEALS, null);
+        if (json != null) {
+            Type type = new TypeToken<List<MealDetail>>() {
+            }.getType();
+            return gson.fromJson(json, type);
         }
         return null;
     }

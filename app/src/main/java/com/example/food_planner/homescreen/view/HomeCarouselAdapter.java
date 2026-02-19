@@ -64,7 +64,10 @@ public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapte
                 .placeholder(R.drawable.ic_restaurant)
                 .into(holder.ivThumb);
 
-        holder.itemView.setOnClickListener(v -> {
+        // Fix: Set listener on the CardView because it is clickable in XML and consumes
+        // events
+        holder.cardView.setOnClickListener(v -> {
+            android.util.Log.d("HomeCarouselAdapter", "Item clicked: " + meal.getName());
             if (listener != null) {
                 listener.onMealClick(meal);
             }
@@ -74,12 +77,14 @@ public class HomeCarouselAdapter extends RecyclerView.Adapter<HomeCarouselAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivThumb;
         TextView tvName, tvCategory;
+        View cardView; // Use View or MaterialCardView
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivThumb = itemView.findViewById(R.id.ivCarouselThumb);
             tvName = itemView.findViewById(R.id.tvCarouselName);
             tvCategory = itemView.findViewById(R.id.tvCarouselCategory);
+            cardView = itemView.findViewById(R.id.cardCarousel);
         }
     }
 }

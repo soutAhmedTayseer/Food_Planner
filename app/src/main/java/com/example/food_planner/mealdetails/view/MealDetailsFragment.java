@@ -45,25 +45,28 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_meal_details, container, false);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // ... existing initViews and presenter setup ...
         initViews(view);
-
-        // Initialize Presenter
         presenter = new MealDetailsPresenterImpl(this, MealRepository.getInstance(requireContext()));
-
         getLifecycle().addObserver(youTubePlayerView);
 
         if (getArguments() != null) {
             MealDetailsFragmentArgs args = MealDetailsFragmentArgs.fromBundle(getArguments());
             MealDetail mealDetail = args.getMealDetail();
-            // Pass data to presenter
             presenter.setMealData(mealDetail);
         }
 
@@ -154,8 +157,7 @@ public class MealDetailsFragment extends Fragment implements MealDetailsView {
                 requireContext(),
                 getString(R.string.remove_from_favorites),
                 getString(R.string.are_you_sure_you_want_to_remove_this_meal_from_your_favorites),
-                () -> presenter.removeFromFavoritesConfirmed()
-        );
+                () -> presenter.removeFromFavoritesConfirmed());
     }
 
     // --- Local UI Utilities ---
